@@ -80,11 +80,11 @@ const LoginPage = () => {
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
               {/* 這裡可以放置應用 Logo */}
-              <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-2xl font-bold">DGO</span>
+              <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center">
+                <span className="text-white text-2xl font-bold">點點GO+</span>
               </div>
             </div>
-            <h1 className="text-2xl font-bold text-gray-800">Din GO+</h1>
+            <h1 className="text-2xl font-bold text-gray-800">點點 GO+</h1>
             <p className="text-gray-600 mt-2">訂餐團購一手搞定
             </p>
           </div>
