@@ -81,7 +81,7 @@ const LoginPage = () => {
             <div className="flex justify-center mb-4">
               {/* 這裡可以放置應用 Logo */}
               <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-2xl font-bold">DiDi</span>
+                <span className="text-white text-2xl font-bold">DGO</span>
               </div>
             </div>
             <h1 className="text-2xl font-bold text-gray-800">Din GO+</h1>
