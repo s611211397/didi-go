@@ -85,8 +85,7 @@ const LoginPage = () => {
               </div>
             </div>
             <h1 className="text-2xl font-bold text-gray-800">DiDi GO</h1>
-            <p className="text-gray-600 mt-2">
-              <span className="text-lg">➤ 訂購+</span> 訂餐團購一手搞定
+            <p className="text-gray-600 mt-2">訂餐團購一手搞定
             </p>
           </div>
           
