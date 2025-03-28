@@ -146,7 +146,7 @@ const LoginPage = () => {
           </form>
                     
           <Button
-            variant="outline"
+            variant="google"
             fullWidth
             onClick={handleGoogleLogin}
             disabled={loading}

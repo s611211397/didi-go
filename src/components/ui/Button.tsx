@@ -3,7 +3,7 @@
 import React, { ButtonHTMLAttributes, forwardRef } from 'react';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'text';
+  variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'text' | 'google';
   size?: 'sm' | 'md' | 'lg';
   fullWidth?: boolean;
   isLoading?: boolean;
@@ -29,11 +29,12 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     
     // 變體樣式
     const variantStyles = {
-      primary: 'bg-green-500 hover:bg-green-600 hover:shadow-md text-white focus:ring-green-500',
-      secondary: 'bg-gray-200 hover:bg-gray-300 hover:shadow-md text-gray-800 focus:ring-gray-400',
-      outline: 'border border-green-500 text-green-500 hover:bg-gray-80 focus:ring-green-500',
-      danger: 'bg-red-500 hover:bg-red-600 hover:shadow-md text-white focus:ring-red-500',
-      text: 'text-green-600 hover:text-green-800 hover:bg-green-50 focus:ring-green-500',
+    primary: 'bg-green-500 hover:bg-green-600 hover:shadow-md text-white focus:ring-green-500',
+    secondary: 'bg-gray-200 hover:bg-gray-300 hover:shadow-md text-gray-800 focus:ring-gray-400',
+    outline: 'border border-green-500 text-green-500 hover:bg-gray-80 focus:ring-green-500',
+    danger: 'bg-red-500 hover:bg-red-600 hover:shadow-md text-white focus:ring-red-500',
+    text: 'text-green-600 hover:text-green-800 hover:bg-green-50 focus:ring-green-500',
+    google: 'bg-white border border-gray-200 hover:shadow-md text-gray-800 focus:ring-gray-300',
     };
     
     // 尺寸樣式
