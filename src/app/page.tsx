@@ -16,7 +16,8 @@ export default function HomePage() {
   const router = useRouter();
   
   // 模擬進行中的訂單資料（實際應用中應從服務或 Context 獲取）
-  const [activeOrder, setActiveOrder] = useState({
+  // 只解構狀態值，不需要更新函數
+  const [activeOrder] = useState({
     exists: true,
     title: '大同便當訂購',
     id: '123'
