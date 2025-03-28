@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
@@ -14,6 +14,13 @@ import MobileNavBar from '@/components/layout/MobileNavBar';
 export default function HomePage() {
   const { currentUser: user, userProfile, loading } = useAuth();
   const router = useRouter();
+  
+  // 模擬進行中的訂單資料（實際應用中應從服務或 Context 獲取）
+  const [activeOrder, setActiveOrder] = useState({
+    exists: true,
+    title: '大同便當訂購',
+    id: '123'
+  });
   
   // 檢查用戶是否已登入
   useEffect(() => {
@@ -45,7 +52,13 @@ export default function HomePage() {
       <div className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-[#484848]">DiDi GO</h1>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
+            {/* 進行中的訂單提示 */}
+            {activeOrder.exists && (
+              <Link href={`/orders/${activeOrder.id}`} className="text-sm md:text-base text-[#484848] hidden md:flex items-center">
+                <span className="text-[#10B981] mr-1">🟢</span> 進行中的訂單：{activeOrder.title}
+              </Link>
+            )}
             <span className="text-[#767676]">Hi, {displayName}</span>
             {/* 用戶頭像 */}
             <div className="w-10 h-10 rounded-full bg-[#10B981] text-white flex items-center justify-center">
@@ -53,6 +66,14 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+        {/* 進行中的訂單提示（僅在手機版顯示） */}
+        {activeOrder.exists && (
+          <div className="md:hidden bg-[#F0FDF4] px-4 py-2 text-sm">
+            <Link href={`/orders/${activeOrder.id}`} className="flex items-center text-[#10B981]">
+              <span className="mr-1">🟢</span> 進行中：{activeOrder.title}
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* 主要內容區域 */}
@@ -86,18 +107,20 @@ export default function HomePage() {
           />
         </div>
         
-        {/* 最近訂單區域 */}
-        <div className="mt-12">
-          <h2 className="text-xl font-semibold text-[#484848] mb-6">最近的訂單</h2>
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <p className="text-[#767676]">目前沒有進行中的訂單</p>
-            <Link href="/orders/create">
-              <button className="mt-4 bg-[#10B981] text-white px-4 py-2 rounded-md hover:bg-opacity-90 transition-all duration-300">
-                立即建立訂單
-              </button>
-            </Link>
+        {/* 最近訂單區域 - 僅當沒有進行中訂單時顯示 */}
+        {!activeOrder.exists && (
+          <div className="mt-12">
+            <h2 className="text-xl font-semibold text-[#484848] mb-6">最近的訂單</h2>
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <p className="text-[#767676]">目前沒有進行中的訂單</p>
+              <Link href="/orders/create">
+                <button className="mt-4 bg-[#10B981] text-white px-4 py-2 rounded-md hover:bg-opacity-90 transition-all duration-300">
+                  立即建立訂單
+                </button>
+              </Link>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* 底部導航區域 (手機版) */}
