@@ -71,7 +71,7 @@ export default function HomePage() {
           {activeOrder.exists && (
             <Link href={`/orders/${activeOrder.id}`} className="ml-3 flex items-center text-[#10B981] hover:underline text-sm md:text-base">
               <span className="text-[#10B981] mr-1">🟢</span> 
-              <span>進行中訂單：{activeOrder.title}</span>
+              <span>訂購中：{activeOrder.title}</span>
             </Link>
           )}
         </div>

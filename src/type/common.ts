@@ -15,7 +15,7 @@ export type Timestamp = {
 
 // 訂單狀態列舉
 export enum OrderStatus {
-  ORDERING = 'ordering',     // 訂餐中
+  ORDERING = 'ordering',     // 訂購中
   COLLECTING = 'collecting', // 收款中
   COMPLETED = 'completed',   // 已完成
 }
