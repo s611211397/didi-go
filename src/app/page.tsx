@@ -69,9 +69,9 @@ export default function HomePage() {
           <h2 className="text-xl font-semibold text-[#484848]">今天想做什麼？</h2>
           {/* 進行中訂單提示 - 直接接續在標題後面 */}
           {activeOrder.exists && (
-            <Link href={`/orders/${activeOrder.id}`} className="ml-3 flex items-center text-[#10B981] hover:underline text-sm md:text-base">
+            <Link href={`/orders/${activeOrder.id}`} className="ml-3 flex items-center text-[#10B981] text-sm md:text-base">
               <span className="text-[#10B981] mr-1">🟢</span> 
-              <span>訂購中：{activeOrder.title}</span>
+              <span className="hover:underline">訂購中：{activeOrder.title}</span>
             </Link>
           )}
         </div>
