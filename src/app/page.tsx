@@ -62,8 +62,8 @@ export default function HomePage() {
         {/* 功能卡片區域 - 響應式網格 */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <FeatureCard 
-            title="新增訂購" 
-            description="建立新的訂餐表單，邀請同事一起訂餐" 
+            title="新增訂單" 
+            description="建立新的訂單" 
             icon={<AddOrderIcon />} 
             linkTo="/orders/create" 
             color="border-[#10B981]"
