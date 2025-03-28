@@ -31,7 +31,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const variantStyles = {
     primary: 'bg-green-500 hover:bg-green-600 hover:shadow-md text-white focus:ring-green-500',
     secondary: 'bg-gray-200 hover:bg-gray-300 hover:shadow-md text-gray-800 focus:ring-gray-400',
-    outline: 'border border-green-500 text-green-500 hover:bg-gray-80 focus:ring-green-500',
+    outline: 'border border-gray-200 text-gray-800 hover:shadow-md hover:bg-gray-50 focus:ring-gray-300',
     danger: 'bg-red-500 hover:bg-red-600 hover:shadow-md text-white focus:ring-red-500',
     text: 'text-green-600 hover:text-green-800 hover:bg-green-50 focus:ring-green-500',
     google: 'bg-white border border-gray-200 hover:shadow-md text-gray-800 focus:ring-gray-300',
