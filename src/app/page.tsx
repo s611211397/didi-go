@@ -54,12 +54,6 @@ export default function HomePage() {
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-[#484848]">DiDi GO</h1>
           <div className="flex items-center gap-2 md:gap-4">
-            {/* 進行中的訂單提示 */}
-            {activeOrder.exists && (
-              <Link href={`/orders/${activeOrder.id}`} className="text-sm md:text-base text-[#484848] hidden md:flex items-center">
-                <span className="text-[#10B981] mr-1">🟢</span> 進行中的訂單：{activeOrder.title}
-              </Link>
-            )}
             <span className="text-[#767676]">Hi, {displayName}</span>
             {/* 用戶頭像 */}
             <div className="w-10 h-10 rounded-full bg-[#10B981] text-white flex items-center justify-center">
@@ -67,19 +61,22 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-        {/* 進行中的訂單提示（僅在手機版顯示） */}
-        {activeOrder.exists && (
-          <div className="md:hidden bg-[#F0FDF4] px-4 py-2 text-sm">
-            <Link href={`/orders/${activeOrder.id}`} className="flex items-center text-[#10B981]">
-              <span className="mr-1">🟢</span> 進行中：{activeOrder.title}
-            </Link>
-          </div>
-        )}
       </div>
 
       {/* 主要內容區域 */}
       <div className="container mx-auto px-4 py-8 pb-20 md:pb-8"> {/* 添加底部內邊距，避免在手機版被底部導航遮擋 */}
-        <h2 className="text-xl font-semibold text-[#484848] mb-6">今天想做什麼？</h2>
+        <h2 className="text-xl font-semibold text-[#484848] mb-3">今天想做什麼？</h2>
+        
+        {/* 進行中訂單提示 - 顯示在「今天想做什麼？」後面 */}
+        {activeOrder.exists && (
+          <div className="mb-6 bg-[#F0FDF4] p-3 rounded-lg border border-[#DCFCE7] shadow-sm">
+            <Link href={`/orders/${activeOrder.id}`} className="flex items-center text-[#10B981] hover:underline">
+              <span className="text-[#10B981] mr-2 text-lg">🟢</span> 
+              <span>進行中：{activeOrder.title}</span>
+              <span className="ml-auto text-sm bg-[#10B981] text-white px-2 py-1 rounded-full">查看</span>
+            </Link>
+          </div>
+        )}
         
         {/* 功能卡片區域 - 響應式網格 */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
