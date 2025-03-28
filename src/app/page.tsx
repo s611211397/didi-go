@@ -65,18 +65,16 @@ export default function HomePage() {
 
       {/* 主要內容區域 */}
       <div className="container mx-auto px-4 py-8 pb-20 md:pb-8"> {/* 添加底部內邊距，避免在手機版被底部導航遮擋 */}
-        <h2 className="text-xl font-semibold text-[#484848] mb-3">今天想做什麼？</h2>
-        
-        {/* 進行中訂單提示 - 顯示在「今天想做什麼？」後面 */}
-        {activeOrder.exists && (
-          <div className="mb-6 bg-[#F0FDF4] p-3 rounded-lg border border-[#DCFCE7] shadow-sm">
-            <Link href={`/orders/${activeOrder.id}`} className="flex items-center text-[#10B981] hover:underline">
-              <span className="text-[#10B981] mr-2 text-lg">🟢</span> 
-              <span>進行中：{activeOrder.title}</span>
-              <span className="ml-auto text-sm bg-[#10B981] text-white px-2 py-1 rounded-full">查看</span>
+        <div className="flex flex-wrap items-center mb-6">
+          <h2 className="text-xl font-semibold text-[#484848]">今天想做什麼？</h2>
+          {/* 進行中訂單提示 - 直接接續在標題後面 */}
+          {activeOrder.exists && (
+            <Link href={`/orders/${activeOrder.id}`} className="ml-3 flex items-center text-[#10B981] hover:underline text-sm md:text-base">
+              <span className="text-[#10B981] mr-1">🟢</span> 
+              <span>進行中訂單：{activeOrder.title}</span>
             </Link>
-          </div>
-        )}
+          )}
+        </div>
         
         {/* 功能卡片區域 - 響應式網格 */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
