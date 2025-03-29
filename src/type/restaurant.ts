@@ -10,8 +10,6 @@ export interface Restaurant extends BaseModel {
   contact: ContactInfo;
   imageUrl?: string;
   minimumOrder?: number;        // 最低訂購金額
-  deliveryFee?: number;         // 外送費用
-  estimatedDeliveryTime?: number; // 預估送達時間（分鐘）
   openingHours?: OpeningHours;  // 營業時間
   menuItemsCount?: number;      // 菜單項目數量（方便快速顯示）
   isActive: boolean;            // 是否啟用
@@ -104,8 +102,6 @@ export interface CreateRestaurantParams {
   contact: ContactInfo;
   imageUrl?: string;
   minimumOrder?: number;
-  deliveryFee?: number;
-  estimatedDeliveryTime?: number;
   openingHours?: OpeningHours;
   notes?: string;
   tags?: string[];
