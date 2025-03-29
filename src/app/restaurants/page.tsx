@@ -205,7 +205,7 @@ export default function RestaurantsPage() {
           </div>
           
           <Link href="/restaurants/create">
-            <button className="bg-[#10B981] text-white px-4 py-2 rounded-md hover:bg-opacity-90 transition-all duration-300 flex items-center">
+            <button className="bg-[#10B981] text-white px-4 py-2 rounded-md hover:bg-opacity-90 transition-all duration-300 flex items-center cursor-pointer">
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
               </svg>
@@ -231,7 +231,7 @@ export default function RestaurantsPage() {
             <h3 className="text-xl font-semibold text-[#484848] mb-2">尚未新增餐廳</h3>
             <p className="text-[#767676] mb-6">開始新增您常用的餐廳，以便建立訂餐表單</p>
             <Link href="/restaurants/create">
-              <button className="bg-[#10B981] text-white px-4 py-2 rounded-md hover:bg-opacity-90 transition-all duration-300">
+              <button className="bg-[#10B981] text-white px-4 py-2 rounded-md hover:bg-opacity-90 transition-all duration-300 cursor-pointer">
                 立即新增餐廳
               </button>
             </Link>
