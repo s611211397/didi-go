@@ -7,15 +7,15 @@ import { useAuth } from '@/hooks/useAuth';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { CreateRestaurantParams } from '@/type/restaurant';
-import { createRestaurant } from '@/services/restaurant'; // 引入餐廳服務
+import { useRestaurants } from '@/hooks/useRestaurants'; // 使用餐廳Hook
 
 /**
  * 新增餐廳頁面
  */
 export default function CreateRestaurantPage() {
   const router = useRouter();
-  const { currentUser: user, loading } = useAuth();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { currentUser: user, loading: authLoading } = useAuth();
+  const { addRestaurant, loading: restaurantLoading, error: restaurantError } = useRestaurants();
   
   // 表單狀態
   const [formData, setFormData] = useState<CreateRestaurantParams>({
@@ -121,30 +121,27 @@ export default function CreateRestaurantPage() {
     if (!validateForm()) return;
     if (!user) return; // 確保用戶已登入
     
-    setIsSubmitting(true);
-    
     try {
-      // 使用餐廳服務將資料儲存到 Firebase
-      await createRestaurant(formData, user.uid);
+      // 使用 useRestaurants hook 的 addRestaurant 方法
+      await addRestaurant(formData, user.uid);
       
       // 成功後導航到餐廳列表頁
       router.push('/restaurants');
     } catch (error) {
       console.error('新增餐廳失敗:', error);
-      alert('新增餐廳失敗，請稍後再試。');
-    } finally {
-      setIsSubmitting(false);
+      // 錯誤已由 hook 內部處理，不需要再顯示提示
     }
   };
   
   // 檢查用戶是否已登入
   useEffect(() => {
-    if (!loading && !user) {
+    if (!authLoading && !user) {
       router.push('/login');
     }
-  }, [user, loading, router]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, authLoading]);
 
-  if (loading) {
+  if (authLoading || restaurantLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F7F7F7]">
         <div className="text-[#10B981] text-xl">載入中...</div>
@@ -294,11 +291,17 @@ export default function CreateRestaurantPage() {
               type="submit"
               variant="primary"
               className="w-full sm:w-auto"
-              isLoading={isSubmitting}
-              disabled={isSubmitting}
+              isLoading={restaurantLoading}
+              disabled={restaurantLoading}
             >
-              {isSubmitting ? '處理中...' : '新增餐廳'}
+              {restaurantLoading ? '處理中...' : '新增餐廳'}
             </Button>
+            
+            {restaurantError && (
+              <div className="mt-4 p-3 bg-red-50 text-red-600 rounded-md w-full">
+                {restaurantError}
+              </div>
+            )}
           </div>
         </form>
       </div>

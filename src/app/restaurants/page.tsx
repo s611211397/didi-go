@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { Restaurant } from '@/type/restaurant';
-import { getRestaurants } from '@/services/restaurant'; // 引入餐廳服務
+import { useRestaurants } from '@/hooks/useRestaurants'; // 使用餐廳Hook
 import Button from '@/components/ui/Button';
 
 /**
@@ -96,38 +96,47 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
  * 餐廳管理頁面
  */
 export default function RestaurantsPage() {
-  const { currentUser: user, loading } = useAuth();
+  const { currentUser: user, loading: authLoading } = useAuth();
   const router = useRouter();
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const { 
+    restaurants, 
+    loading: restaurantsLoading, 
+    error, 
+    fetchRestaurants 
+  } = useRestaurants();
   
   // 從 Firebase 獲取餐廳資料
   useEffect(() => {
-    const fetchRestaurants = async () => {
-      if (user) {
+    // 預防無限迴圈的保護機制
+    let isMounted = true;
+    
+    const loadRestaurants = async () => {
+      if (user && isMounted) {
         try {
-          const restaurantList = await getRestaurants(user.uid);
-          setRestaurants(restaurantList);
+          await fetchRestaurants(user.uid);
         } catch (error) {
           console.error('獲取餐廳列表失敗:', error);
-          // 可以顯示錯誤訊息給用戶
         }
       }
     };
 
-    if (!loading && user) {
-      fetchRestaurants();
-    }
-  }, [user, loading]);
+    loadRestaurants();
+    
+    // 清理函數
+    return () => {
+      isMounted = false;
+    };
+  }, [user, fetchRestaurants]);
   
   // 檢查用戶是否已登入
   useEffect(() => {
-    if (!loading && !user) {
+    if (!authLoading && !user) {
       router.push('/login');
     }
-  }, [user, loading, router]);
+  }, [user, authLoading, router]);
 
   // 如果正在載入，顯示載入狀態
-  if (loading) {
+  if (authLoading || restaurantsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F7F7F7]">
         <div className="text-[#10B981] text-xl">載入中...</div>
@@ -138,6 +147,29 @@ export default function RestaurantsPage() {
   // 如果用戶未登入，不顯示內容（會被導向登入頁）
   if (!user) {
     return null;
+  }
+  
+  // 顯示錯誤訊息（如果有）
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F7F7F7]">
+        <div className="bg-white p-6 rounded-lg shadow-md text-center">
+          <div className="text-red-500 text-xl mb-4">
+            <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <h3 className="text-xl font-semibold text-[#484848] mb-2">發生錯誤</h3>
+          <p className="text-[#767676] mb-4">{error}</p>
+          <button 
+            onClick={() => fetchRestaurants(user.uid)}
+            className="px-4 py-2 bg-[#10B981] text-white rounded-md hover:bg-[#0D9668] transition-colors"
+          >
+            重試
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
