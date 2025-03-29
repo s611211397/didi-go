@@ -190,20 +190,7 @@ export default function CreateRestaurantPage() {
                 required
               />
               
-              <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                  餐廳描述
-                </label>
-                <textarea
-                  id="description"
-                  name="description"
-                  placeholder="餐廳簡介、特色或其他描述"
-                  className="px-4 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
-                  rows={3}
-                  value={formData.description}
-                  onChange={handleChange}
-                />
-              </div>
+
               
               <div>
                 <label htmlFor="minimumOrder" className="block text-sm font-medium text-gray-700 mb-1">
@@ -220,14 +207,7 @@ export default function CreateRestaurantPage() {
                   onChange={handleChange}
                 />
               </div>
-            </div>
-          </div>
-          
-          {/* 地址區塊 */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-xl font-semibold text-[#484848] mb-4">餐廳地址</h2>
-            
-            <div className="space-y-6">
+
               <Input
                 label="地址"
                 id="street"
@@ -239,14 +219,7 @@ export default function CreateRestaurantPage() {
                 className=""
                 required
               />
-            </div>
-          </div>
-          
-          {/* 聯絡資訊區塊 */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-xl font-semibold text-[#484848] mb-4">聯絡資訊</h2>
-            
-            <div className="space-y-6">
+              
               <Input
                 label="聯絡電話"
                 id="phone"
@@ -258,6 +231,8 @@ export default function CreateRestaurantPage() {
               />
             </div>
           </div>
+          
+
           
           {/* 其他資訊區塊 */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
