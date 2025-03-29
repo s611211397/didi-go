@@ -30,6 +30,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             rounded-md 
             focus:outline-none focus:ring-2 focus:ring-green-500 
             placeholder-gray-300
+            text-black
             disabled:opacity-50 disabled:cursor-not-allowed
             ${error ? 'border-red-500 focus:ring-red-500' : ''}
             ${fullWidth ? 'w-full' : ''}

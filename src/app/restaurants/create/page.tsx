@@ -186,6 +186,7 @@ export default function CreateRestaurantPage() {
                 value={formData.name}
                 onChange={handleChange}
                 error={errors.name}
+                className=""
                 required
               />
               
@@ -197,7 +198,7 @@ export default function CreateRestaurantPage() {
                   id="description"
                   name="description"
                   placeholder="餐廳簡介、特色或其他描述"
-                  className="px-4 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="px-4 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
                   rows={3}
                   value={formData.description}
                   onChange={handleChange}
@@ -213,7 +214,7 @@ export default function CreateRestaurantPage() {
                   id="minimumOrder"
                   name="minimumOrder"
                   placeholder="0"
-                  className="px-4 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="px-4 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
                   min="0"
                   value={formData.minimumOrder || ''}
                   onChange={handleChange}
@@ -235,52 +236,9 @@ export default function CreateRestaurantPage() {
                 value={formData.address.street}
                 onChange={handleChange}
                 error={errors['address.street']}
+                className=""
                 required
               />
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Input
-                  label="城市"
-                  id="city"
-                  name="address.city"
-                  placeholder="例：台北市"
-                  value={formData.address.city}
-                  onChange={handleChange}
-                />
-                
-                <Input
-                  label="區域"
-                  id="district"
-                  name="address.district"
-                  placeholder="例：大安區"
-                  value={formData.address.district}
-                  onChange={handleChange}
-                />
-                
-                <Input
-                  label="郵遞區號"
-                  id="postalCode"
-                  name="address.postalCode"
-                  placeholder="例：106"
-                  value={formData.address.postalCode}
-                  onChange={handleChange}
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="addressNotes" className="block text-sm font-medium text-gray-700 mb-1">
-                  地址備註 (可選)
-                </label>
-                <textarea
-                  id="addressNotes"
-                  name="address.notes"
-                  placeholder="地址補充說明，例如：大樓名稱、樓層等"
-                  className="px-4 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-green-500"
-                  rows={2}
-                  value={formData.address.notes}
-                  onChange={handleChange}
-                />
-              </div>
             </div>
           </div>
           
@@ -296,25 +254,7 @@ export default function CreateRestaurantPage() {
                 placeholder="請輸入餐廳電話"
                 value={formData.contact.phone}
                 onChange={handleChange}
-              />
-              
-              <Input
-                label="電子郵件"
-                id="email"
-                name="contact.email"
-                type="email"
-                placeholder="example@mail.com"
-                value={formData.contact.email}
-                onChange={handleChange}
-              />
-              
-              <Input
-                label="聯絡人"
-                id="contactPerson"
-                name="contact.contactPerson"
-                placeholder="請輸入負責人或聯絡人姓名"
-                value={formData.contact.contactPerson}
-                onChange={handleChange}
+                className=""
               />
             </div>
           </div>
@@ -332,7 +272,7 @@ export default function CreateRestaurantPage() {
                   id="notes"
                   name="notes"
                   placeholder="其他額外資訊或備註"
-                  className="px-4 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="px-4 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
                   rows={3}
                   value={formData.notes}
                   onChange={handleChange}
