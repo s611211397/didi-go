@@ -234,26 +234,24 @@ export default function CreateRestaurantPage() {
                     </div>
                   ))}
                 </div>
-                <div className="space-y-1">
+                <div className="flex space-x-2 items-center">
                   <Input
                     id="tagInput"
                     name="tagInput"
                     placeholder="輸入標籤，例如：便當、小吃"
                     value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)}
-                    className="w-full"
+                    className="flex-1"
                   />
-                  <div className="flex justify-end">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className=""
-                      onClick={handleAddTag}
-                      size="sm"
-                    >
-                      新增標籤
-                    </Button>
-                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-shrink-0"
+                    onClick={handleAddTag}
+                    size="input"
+                  >
+                    新增
+                  </Button>
                 </div>
                 <p className="mt-1 text-sm text-gray-500">可新增多個標籤，例如：便當、小吃、中式料理等</p>
               </div>
