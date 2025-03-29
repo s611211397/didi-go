@@ -21,15 +21,23 @@ import {
  */
 export const createRestaurant = async (params: CreateRestaurantParams, userId: string): Promise<string> => {
   try {
+    // 只將用戶輸入的參數加上系統必要的狀態欄位
     const restaurantData = {
-      ...params,
-      isActive: true,
-      createdBy: userId,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
+      ...params,  // 保留用戶在表單中輸入的所有資料
+      isActive: true,  // 系統必需欄位
+      createdBy: userId,  // 需要被索引的字段
+      createdAt: serverTimestamp(),  // 需要被索引的字段
+      updatedAt: serverTimestamp()  // 系統必需欄位
     };
 
+    // 確保 tags 欄位存在，但不設定其他默認值
+    if (!restaurantData.tags) {
+      restaurantData.tags = [];
+    }
+
+    // 添加文檔到餐廳集合
     const docRef = await addDoc(collection(db, 'restaurants'), restaurantData);
+    console.log('創建餐廳成功，ID:', docRef.id);
     return docRef.id;
   } catch (error) {
     console.error('創建餐廳失敗:', error);
@@ -43,6 +51,7 @@ export const createRestaurant = async (params: CreateRestaurantParams, userId: s
  */
 export const getRestaurants = async (userId: string): Promise<Restaurant[]> => {
   try {
+    // 確保查詢包含正確的索引字段
     const q = query(
       collection(db, 'restaurants'),
       where('createdBy', '==', userId),
@@ -55,6 +64,7 @@ export const getRestaurants = async (userId: string): Promise<Restaurant[]> => {
     querySnapshot.forEach((doc) => {
       const data = doc.data();
       
+      // 確保所有字段都正確映射
       restaurants.push({
         id: doc.id,
         name: data.name,
