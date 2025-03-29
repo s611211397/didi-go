@@ -192,21 +192,7 @@ export default function CreateRestaurantPage() {
               
 
               
-              <div>
-                <label htmlFor="minimumOrder" className="block text-sm font-medium text-gray-700 mb-1">
-                  最低訂購金額 (可選)
-                </label>
-                <input
-                  type="number"
-                  id="minimumOrder"
-                  name="minimumOrder"
-                  placeholder="0"
-                  className="px-4 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
-                  min="0"
-                  value={formData.minimumOrder || ''}
-                  onChange={handleChange}
-                />
-              </div>
+
 
               <Input
                 label="地址"
@@ -229,30 +215,6 @@ export default function CreateRestaurantPage() {
                 onChange={handleChange}
                 className=""
               />
-            </div>
-          </div>
-          
-
-          
-          {/* 其他資訊區塊 */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-xl font-semibold text-[#484848] mb-4">其他資訊</h2>
-            
-            <div className="space-y-6">
-              <div>
-                <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
-                  備註事項 (可選)
-                </label>
-                <textarea
-                  id="notes"
-                  name="notes"
-                  placeholder="其他額外資訊或備註"
-                  className="px-4 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
-                  rows={3}
-                  value={formData.notes}
-                  onChange={handleChange}
-                />
-              </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -272,7 +234,7 @@ export default function CreateRestaurantPage() {
                     </div>
                   ))}
                 </div>
-                <div className="flex">
+                <div className="flex space-x-2 items-center">
                   <Input
                     id="tagInput"
                     name="tagInput"
@@ -284,13 +246,29 @@ export default function CreateRestaurantPage() {
                   <Button
                     type="button"
                     variant="outline"
-                    className="ml-2"
+                    className="flex-shrink-0"
                     onClick={handleAddTag}
+                    size="input"
                   >
                     新增
                   </Button>
                 </div>
                 <p className="mt-1 text-sm text-gray-500">可新增多個標籤，例如：便當、小吃、中式料理等</p>
+              </div>
+              
+              <div>
+                <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
+                  備註事項 (可選)
+                </label>
+                <textarea
+                  id="notes"
+                  name="notes"
+                  placeholder="其他額外資訊或備註"
+                  className="px-4 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
+                  rows={3}
+                  value={formData.notes}
+                  onChange={handleChange}
+                />
               </div>
             </div>
           </div>

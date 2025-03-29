@@ -4,7 +4,7 @@ import React, { ButtonHTMLAttributes, forwardRef } from 'react';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'text' | 'google';
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'input';
   fullWidth?: boolean;
   isLoading?: boolean;
   leftIcon?: React.ReactNode;
@@ -42,6 +42,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       sm: 'py-1 px-3 text-sm',
       md: 'py-2 px-4 text-base',
       lg: 'py-3 px-6 text-lg',
+      input: 'py-[7px] px-4 text-base h-[38px]', // 與輸入框高度一致
     };
     
     // 全寬樣式
