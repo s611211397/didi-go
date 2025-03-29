@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { CreateRestaurantParams } from '@/type/restaurant';
+import { createRestaurant } from '@/services/restaurant'; // 引入餐廳服務
 
 /**
  * 新增餐廳頁面
@@ -118,15 +119,13 @@ export default function CreateRestaurantPage() {
     e.preventDefault();
     
     if (!validateForm()) return;
+    if (!user) return; // 確保用戶已登入
     
     setIsSubmitting(true);
     
     try {
-      // TODO: 實際實作會呼叫 restaurant service 將資料存入 Firebase
-      console.log('提交餐廳資料:', formData);
-      
-      // 模擬API延遲
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // 使用餐廳服務將資料儲存到 Firebase
+      await createRestaurant(formData, user.uid);
       
       // 成功後導航到餐廳列表頁
       router.push('/restaurants');
@@ -139,6 +138,12 @@ export default function CreateRestaurantPage() {
   };
   
   // 檢查用戶是否已登入
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F7F7F7]">

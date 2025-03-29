@@ -5,59 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { Restaurant } from '@/type/restaurant';
-import { Timestamp } from '@/type/common';
-
-// 模擬 Timestamp 物件
-const createTimestamp = (): Timestamp => ({
-  seconds: Math.floor(Date.now() / 1000),
-  nanoseconds: 0,
-  toDate: () => new Date(),
-  toMillis: () => Date.now()
-});
-
-// 模擬餐廳資料 - 在實際應用中，這些資料應從Firebase獲取
-const mockRestaurants: Restaurant[] = [
-  {
-    id: '1',
-    name: '大同便當',
-    description: '提供多種中式便當選擇，價格實惠',
-    address: {
-      street: '台北市大同區承德路一段32號',
-      city: '台北市',
-      district: '大同區',
-      postalCode: '103'
-    },
-    contact: {
-      phone: '02-2552-5252',
-      email: 'contact@datong.com'
-    },
-    isActive: true,
-    createdBy: 'user1',
-    createdAt: createTimestamp(),
-    updatedAt: createTimestamp(),
-    tags: ['便當', '中式料理']
-  },
-  {
-    id: '2',
-    name: '鼎泰豐',
-    description: '享譽國際的台灣小籠包餐廳',
-    address: {
-      street: '台北市信義區松高路68號',
-      city: '台北市',
-      district: '信義區',
-      postalCode: '110'
-    },
-    contact: {
-      phone: '02-8101-8686',
-      email: 'service@dintaifung.com'
-    },
-    isActive: true,
-    createdBy: 'user1',
-    createdAt: createTimestamp(),
-    updatedAt: createTimestamp(),
-    tags: ['小籠包', '台灣料理', '上海菜']
-  }
-];
+import { getRestaurants } from '@/services/restaurant'; // 引入餐廳服務
+import Button from '@/components/ui/Button';
 
 /**
  * 餐廳卡片元件
@@ -151,11 +100,24 @@ export default function RestaurantsPage() {
   const router = useRouter();
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   
-  // 模擬從Firebase獲取餐廳資料
+  // 從 Firebase 獲取餐廳資料
   useEffect(() => {
-    // 實際應用中應從Firebase獲取
-    setRestaurants(mockRestaurants);
-  }, []);
+    const fetchRestaurants = async () => {
+      if (user) {
+        try {
+          const restaurantList = await getRestaurants(user.uid);
+          setRestaurants(restaurantList);
+        } catch (error) {
+          console.error('獲取餐廳列表失敗:', error);
+          // 可以顯示錯誤訊息給用戶
+        }
+      }
+    };
+
+    if (!loading && user) {
+      fetchRestaurants();
+    }
+  }, [user, loading]);
   
   // 檢查用戶是否已登入
   useEffect(() => {
@@ -205,12 +167,17 @@ export default function RestaurantsPage() {
           </div>
           
           <Link href="/restaurants/create">
-            <button className="bg-[#10B981] text-white px-4 py-2 rounded-md hover:bg-opacity-90 transition-all duration-300 flex items-center cursor-pointer">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-              </svg>
+            <Button 
+              variant="primary"
+              className="flex items-center cursor-pointer"
+              leftIcon={
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+              }
+            >
               新增餐廳
-            </button>
+            </Button>
           </Link>
         </div>
         
@@ -230,11 +197,6 @@ export default function RestaurantsPage() {
             </div>
             <h3 className="text-xl font-semibold text-[#484848] mb-2">尚未新增餐廳</h3>
             <p className="text-[#767676] mb-6">開始新增您常用的餐廳，以便建立訂餐表單</p>
-            <Link href="/restaurants/create">
-              <button className="bg-[#10B981] text-white px-4 py-2 rounded-md hover:bg-opacity-90 transition-all duration-300 cursor-pointer">
-                立即新增餐廳
-              </button>
-            </Link>
           </div>
         )}
       </div>
