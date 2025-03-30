@@ -60,7 +60,6 @@ export interface MenuCategory {
  * 菜單項目介面
  */
 export interface MenuItem extends BaseModel {
-  restaurantId: FirebaseDocId;  // 所屬餐廳ID
   name: string;
   description?: string;
   price: number;
@@ -110,7 +109,6 @@ export interface CreateRestaurantParams {
  * 建立菜單項目的參數
  */
 export interface CreateMenuItemParams {
-  restaurantId: FirebaseDocId;
   name: string;
   description?: string;
   price: number;

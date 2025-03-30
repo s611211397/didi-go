@@ -1,0 +1,85 @@
+flowchart TD
+    subgraph 前端 ["前端 (Next.js + React)"]
+        direction TB
+        LoginReg["登入/註冊頁面\n(login.tsx/register.tsx)"]
+        HomePage["首頁\n(index.tsx)"]
+        RestaurantPage["餐廳管理頁面\n(restaurants.tsx)"]
+        MenuPage["菜單管理頁面\n(menu.tsx)"]
+        OrderFormPage["訂餐表單建立頁面\n(order-form.tsx)"]
+        OrderPage["訂單管理頁面\n(orders.tsx)"]
+        SharedOrderPage["共享訂單頁面\n([...slug].tsx)"]
+        
+        subgraph Context ["全域狀態管理 (Context API)"]
+            AuthContext["認證狀態\n(auth)"]
+            OrderContext["訂單狀態\n(orders)"]
+        end
+    end
+    
+    subgraph Firebase ["Firebase 服務"]
+        direction TB
+        Auth["Firebase Authentication\n使用者驗證服務"]
+        
+        subgraph Firestore ["Firestore 資料庫"]
+            Users["使用者集合\n(users/{uid})"]
+            Restaurants["餐廳集合\n(restaurants/{restaurantId})"]
+            MenuItems["菜單項目子集合\n(restaurants/{restaurantId}/menu_items/{itemId})"]
+            Orders["訂單集合\n(orders/{orderId})"]
+            OrderItems["訂單項目子集合\n(orders/{orderId}/order_items/{itemId})"]
+        end
+    end
+    
+    %% 身份驗證流程
+    LoginReg -->|註冊登入請求| Auth
+    Auth -->|回傳使用者憑證| AuthContext
+    Auth -->|建立使用者資料| Users
+    AuthContext -->|提供使用者狀態| HomePage
+    
+    %% 餐廳與菜單管理流程
+    RestaurantPage -->|建立讀取更新刪除餐廳| Restaurants
+    Restaurants -->|回傳餐廳資料| RestaurantPage
+    MenuPage -->|建立讀取更新刪除菜單項目| MenuItems
+    MenuItems -->|回傳菜單項目資料| MenuPage
+    
+    %% 訂單流程
+    OrderFormPage -->|建立訂餐表單| Orders
+    Orders -->|回傳訂單ID| OrderFormPage
+    OrderFormPage -->|查詢餐廳和菜單A| Restaurants
+    OrderFormPage -->|查詢餐廳和菜單B| MenuItems
+    Restaurants -->|回傳餐廳資料| OrderFormPage
+    MenuItems -->|回傳菜單資料| OrderFormPage
+    
+    %% 共享訂單流程
+    SharedOrderPage -->|讀取訂單資料| Orders
+    Orders -->|回傳訂單資料| SharedOrderPage
+    SharedOrderPage -->|新增訂單項目| OrderItems
+    OrderItems -->|回傳確認| SharedOrderPage
+    
+    %% 訂單管理流程
+    OrderPage -->|讀取更新訂單狀態| Orders
+    Orders -->|回傳訂單狀態| OrderPage
+    OrderPage -->|讀取訂單項目| OrderItems
+    OrderItems -->|回傳訂單項目資料| OrderPage
+    
+    %% 全局狀態管理
+    OrderContext -->|提供訂單狀態A| OrderPage
+    OrderContext -->|提供訂單狀態B| SharedOrderPage
+    AuthContext -->|驗證用戶身份A| RestaurantPage
+    AuthContext -->|驗證用戶身份B| MenuPage
+    AuthContext -->|驗證用戶身份C| OrderFormPage
+    AuthContext -->|驗證用戶身份D| OrderPage
+    
+    classDef authFlow fill:#FFB400,stroke:#484848,color:#484848
+    classDef restaurantFlow fill:#3B82F6,stroke:#484848,color:white
+    classDef orderFlow fill:#10B981,stroke:#484848,color:white
+    classDef sharedOrderFlow fill:#EF4444,stroke:#484848,color:white
+    
+    class LoginReg,Auth,AuthContext authFlow
+    class RestaurantPage,MenuPage,Restaurants,MenuItems restaurantFlow
+    class OrderFormPage,OrderPage,Orders,OrderItems orderFlow
+    class SharedOrderPage,OrderContext sharedOrderFlow
+    
+    linkStyle 0,1,2,3 stroke:#FFB400,stroke-width:2px
+    linkStyle 4,5,6,7 stroke:#3B82F6,stroke-width:2px
+    linkStyle 8,9,10,11,12,13,18,19,20,21 stroke:#10B981,stroke-width:2px
+    linkStyle 14,15,16,17,22,23 stroke:#EF4444,stroke-width:2px
+    linkStyle 24,25,26,27 stroke:#767676,stroke-width:1.5px,stroke-dasharray:5 5

@@ -4,7 +4,6 @@ import { BaseModel, FirebaseDocId, OrderStatus, PaymentStatus, Timestamp } from 
  * 訂單介面
  */
 export interface Order extends BaseModel {
-  restaurantId: FirebaseDocId;         // 餐廳ID
   organizerId: FirebaseDocId;          // 發起人ID
   title: string;                       // 訂單標題（例如：「週三午餐」）
   description?: string;                // 訂單描述
@@ -96,7 +95,6 @@ export interface OrderNotification extends BaseModel {
  * 建立訂單的參數
  */
 export interface CreateOrderParams {
-  restaurantId: FirebaseDocId;
   title: string;
   description?: string;
   deadlineTime: Date | Timestamp;
@@ -141,7 +139,6 @@ export interface OrderSummary {
   totalSpent: number;
   avgOrderValue: number;
   topRestaurants: {
-    restaurantId: FirebaseDocId;
     restaurantName: string;
     orderCount: number;
   }[];
