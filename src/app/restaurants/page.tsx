@@ -21,7 +21,19 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
       <div className="p-6">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="text-xl font-semibold text-[#484848] mb-2">{restaurant.name}</h3>
+            <div className="flex flex-wrap items-center gap-2 mb-2 w-full">
+              <h3 className="text-xl font-semibold text-[#484848] mr-1">{restaurant.name}</h3>
+              <div className="flex flex-wrap gap-1 mt-1 sm:mt-0">
+                {restaurant.tags?.map((tag, index) => (
+                  <span 
+                    key={index} 
+                    className="bg-[#F7F7F7] text-[#767676] text-xs px-2 py-1 rounded-full"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
             <p className="text-[#767676] mb-4">{restaurant.description}</p>
             
             <div className="space-y-2 mb-4">
@@ -41,17 +53,15 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
                 </svg>
                 <span className="text-[#767676]">{restaurant.contact.phone}</span>
               </div>
-            </div>
-            
-            <div className="flex flex-wrap gap-2 mb-4">
-              {restaurant.tags?.map((tag, index) => (
-                <span 
-                  key={index} 
-                  className="bg-[#F7F7F7] text-[#767676] text-xs px-2 py-1 rounded-full"
-                >
-                  {tag}
-                </span>
-              ))}
+              
+              {restaurant.notes && (
+                <div className="flex items-start">
+                  <svg className="w-5 h-5 text-[#767676] mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+                  </svg>
+                  <span className="text-[#767676]">{restaurant.notes}</span>
+                </div>
+              )}
             </div>
           </div>
           
