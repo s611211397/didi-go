@@ -48,7 +48,7 @@ export default function CreateRestaurantPage() {
     'address.street'?: string;
   }>({});
   
-  // 標籤輸入狀態
+  // 類別標籤輸入狀態
   const [tagInput, setTagInput] = useState('');
   
   // 處理表單輸入變更
@@ -82,19 +82,35 @@ export default function CreateRestaurantPage() {
     }
   };
   
-  // 處理標籤的新增
+  // 處理類別標籤的新增
   const handleAddTag = () => {
     if (tagInput.trim() === '') return;
     
+    // 按「、」分割輸入，處理多個類別標籤
+    const newTags = tagInput
+      .split('、')
+      .map(tag => tag.trim())
+      .filter(tag => tag !== '');
+    
+    if (newTags.length === 0) return;
+    
     setFormData(prev => ({
       ...prev,
-      tags: [...(prev.tags || []), tagInput.trim()]
+      tags: [...(prev.tags || []), ...newTags]
     }));
     
     setTagInput('');
   };
   
-  // 處理標籤的刪除
+  // 處理類別標籤輸入框的鍵盤事件
+  const handleTagInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // 阻止表單提交
+      handleAddTag();
+    }
+  };
+  
+  // 處理類別標籤的刪除
   const handleRemoveTag = (tagToRemove: string) => {
     setFormData(prev => ({
       ...prev,
@@ -227,7 +243,7 @@ export default function CreateRestaurantPage() {
 
       {/* 主要內容區域 */}
       <div className="container mx-auto px-4 py-8 pb-20 md:pb-8">
-        <form className="max-w-3xl mx-auto">
+        <form className="max-w-3xl mx-auto" onSubmit={(e) => e.preventDefault()}>
           {/* 基本資訊區塊 */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
             <h2 className="text-xl font-semibold text-[#484848] mb-4">基本資訊</h2>
@@ -273,7 +289,7 @@ export default function CreateRestaurantPage() {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  標籤 (可選)
+                  分類 (選填)
                 </label>
                 <div className="flex flex-wrap gap-2 mb-2">
                   {formData.tags?.map((tag, index) => (
@@ -293,9 +309,10 @@ export default function CreateRestaurantPage() {
                   <Input
                     id="tagInput"
                     name="tagInput"
-                    placeholder="輸入標籤，例如：便當、小吃"
+                    placeholder="輸入類別，例如：便當、小吃"
                     value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)}
+                    onKeyDown={handleTagInputKeyDown}
                     className="flex-1"
                   />
                   <Button
@@ -308,17 +325,17 @@ export default function CreateRestaurantPage() {
                     新增
                   </Button>
                 </div>
-                <p className="mt-1 text-sm text-gray-500">可新增多個標籤，例如：便當、小吃、中式料理等</p>
+                <p className="mt-1 text-sm text-gray-500">使用「、」分隔，可一次輸入多個類別</p>
               </div>
               
               <div>
                 <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
-                  備註事項 (可選)
+                  備註事項 (選填)
                 </label>
                 <textarea
                   id="notes"
                   name="notes"
-                  placeholder="其他額外資訊或備註"
+                  placeholder="其他額外資訊"
                   className="px-4 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
                   rows={3}
                   value={formData.notes}
@@ -341,7 +358,7 @@ export default function CreateRestaurantPage() {
             </Link>
             
             <Button
-              type="submit"
+              type="button"
               variant="primary"
               className="w-full sm:w-auto"
               isLoading={false}
