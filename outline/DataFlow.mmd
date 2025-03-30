@@ -21,10 +21,10 @@ flowchart TD
         
         subgraph Firestore ["Firestore 資料庫"]
             Users["使用者集合\n(users/{uid})"]
-            Restaurants["餐廳集合\n(restaurants/{restaurantId})"]
-            MenuItems["菜單項目子集合\n(restaurants/{restaurantId}/menu_items/{itemId})"]
-            Orders["訂單集合\n(orders/{orderId})"]
-            OrderItems["訂單項目子集合\n(orders/{orderId}/order_items/{itemId})"]
+            Restaurants["餐廳集合\n(restaurants/{id})"]
+            MenuItems["菜單項目子集合\n(restaurants/{id}/menu_items/{id})"]
+            Orders["訂單集合\n(orders/{id})"]
+            OrderItems["訂單項目子集合\n(orders/{id}/order_items/{id})"]
         end
     end
     
@@ -42,9 +42,9 @@ flowchart TD
     
     %% 訂單流程
     OrderFormPage -->|建立訂餐表單| Orders
-    Orders -->|回傳訂單ID| OrderFormPage
-    OrderFormPage -->|查詢餐廳和菜單A| Restaurants
-    OrderFormPage -->|查詢餐廳和菜單B| MenuItems
+    Orders -->|自動生成並回傳文檔ID| OrderFormPage
+    OrderFormPage -->|查詢餐廳和菜單| Restaurants
+    OrderFormPage -->|查詢餐廳和菜單| MenuItems
     Restaurants -->|回傳餐廳資料| OrderFormPage
     MenuItems -->|回傳菜單資料| OrderFormPage
     
@@ -61,12 +61,12 @@ flowchart TD
     OrderItems -->|回傳訂單項目資料| OrderPage
     
     %% 全局狀態管理
-    OrderContext -->|提供訂單狀態A| OrderPage
-    OrderContext -->|提供訂單狀態B| SharedOrderPage
-    AuthContext -->|驗證用戶身份A| RestaurantPage
-    AuthContext -->|驗證用戶身份B| MenuPage
-    AuthContext -->|驗證用戶身份C| OrderFormPage
-    AuthContext -->|驗證用戶身份D| OrderPage
+    OrderContext -->|提供訂單狀態| OrderPage
+    OrderContext -->|提供訂單狀態| SharedOrderPage
+    AuthContext -->|驗證用戶身份| RestaurantPage
+    AuthContext -->|驗證用戶身份| MenuPage
+    AuthContext -->|驗證用戶身份| OrderFormPage
+    AuthContext -->|驗證用戶身份| OrderPage
     
     classDef authFlow fill:#FFB400,stroke:#484848,color:#484848
     classDef restaurantFlow fill:#3B82F6,stroke:#484848,color:white

@@ -58,7 +58,7 @@
 │   │   │   │   └── page.tsx
 │   │   │   └── page.tsx  # 訂單列表頁面
 │   │   ├── share/        # 共享訂單頁面
-│   │   │   ├── [orderId]/
+│   │   │   ├── [id]/
 │   │   │   │   └── page.tsx
 │   │   ├── layout.tsx    # 根佈局元件
 │   │   ├── page.tsx      # 首頁元件
@@ -129,22 +129,21 @@
         │       └── settings
         │
         ├── restaurants    # 餐廳資料集合
-        │   └── {restaurantId}  # 餐廳文件
+        │   └── {id}      # 餐廳文件（Firebase 自動生成文檔ID）
         │       ├── name
         │       ├── description
         │       ├── address
         │       ├── contact
         │       ├── category
         │       └── menu_items  # 子集合
-        │           └── {itemId}  # 菜單項目文件
+        │           └── {id}   # 菜單項目文件（Firebase 自動生成文檔ID）
         │               ├── name
         │               ├── price
         │               ├── description
         │               └── options
         │
         └── orders        # 訂單資料集合
-            └── {orderId}  # 訂單文件
-                ├── restaurantId
+            └── {id}      # 訂單文件（Firebase 自動生成文檔ID）
                 ├── organizerId
                 ├── title
                 ├── status
@@ -152,7 +151,7 @@
                 ├── totalAmount
                 ├── paymentStatus
                 └── order_items  # 子集合
-                    └── {itemId}  # 訂單項目文件
+                    └── {id}    # 訂單項目文件（Firebase 自動生成文檔ID）
                         ├── userId
                         ├── menuItemId
                         ├── quantity

@@ -26,7 +26,6 @@ export interface Order extends BaseModel {
  * 訂單項目介面
  */
 export interface OrderItem extends BaseModel {
-  orderId: FirebaseDocId;              // 所屬訂單ID
   userId: FirebaseDocId;               // 下單使用者ID
   userName: string;                    // 使用者名稱（方便顯示）
   menuItemId: FirebaseDocId;           // 菜單項目ID
@@ -55,7 +54,6 @@ export interface OrderItemOption {
  * 付款記錄介面
  */
 export interface PaymentRecord extends BaseModel {
-  orderId: FirebaseDocId;              // 所屬訂單ID
   orderItemId?: FirebaseDocId;         // 付款對應的訂單項目ID
   userId: FirebaseDocId;               // 付款使用者ID
   userName: string;                    // 使用者名稱
@@ -71,7 +69,6 @@ export interface PaymentRecord extends BaseModel {
  * 用於追蹤訂單狀態變更
  */
 export interface OrderHistory extends BaseModel {
-  orderId: FirebaseDocId;              // 訂單ID
   previousStatus?: OrderStatus;        // 先前狀態
   newStatus: OrderStatus;              // 新狀態
   changedBy: FirebaseDocId;            // 變更者ID
@@ -82,7 +79,6 @@ export interface OrderHistory extends BaseModel {
  * 訂單通知介面
  */
 export interface OrderNotification extends BaseModel {
-  orderId: FirebaseDocId;              // 訂單ID
   recipientId: FirebaseDocId;          // 接收者ID
   title: string;                       // 通知標題
   message: string;                     // 通知訊息
@@ -108,7 +104,6 @@ export interface CreateOrderParams {
  * 更新訂單狀態的參數
  */
 export interface UpdateOrderStatusParams {
-  orderId: FirebaseDocId;
   status: OrderStatus;
   notes?: string;
 }
@@ -117,7 +112,6 @@ export interface UpdateOrderStatusParams {
  * 建立訂單項目的參數
  */
 export interface CreateOrderItemParams {
-  orderId: FirebaseDocId;
   menuItemId: FirebaseDocId;
   menuItemName: string;
   quantity: number;
