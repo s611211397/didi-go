@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
@@ -51,6 +51,34 @@ export default function CreateRestaurantPage() {
   // 類別標籤輸入狀態
   const [tagInput, setTagInput] = useState('');
   
+  // 建立輸入框的 refs
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const addressInputRef = useRef<HTMLInputElement>(null);
+  const phoneInputRef = useRef<HTMLInputElement>(null);
+  const tagInputRef = useRef<HTMLInputElement>(null);
+
+  // 為每個輸入框創建專用的鍵盤處理函數
+  const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addressInputRef.current?.focus();
+    }
+  };
+
+  const handleAddressKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      phoneInputRef.current?.focus();
+    }
+  };
+
+  const handlePhoneKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      tagInputRef.current?.focus();
+    }
+  };
+
   // 處理表單輸入變更
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -256,9 +284,12 @@ export default function CreateRestaurantPage() {
                 placeholder="請輸入店家名稱"
                 value={formData.name}
                 onChange={handleChange}
+                onKeyDown={handleNameKeyDown}
                 error={errors.name}
                 className=""
                 required
+                ref={nameInputRef}
+                autoComplete="off"
               />
               
 
@@ -272,9 +303,12 @@ export default function CreateRestaurantPage() {
                 placeholder="請輸入詳細地址"
                 value={formData.address.street}
                 onChange={handleChange}
+                onKeyDown={handleAddressKeyDown}
                 error={errors['address.street']}
                 className=""
                 required
+                ref={addressInputRef}
+                autoComplete="off"
               />
               
               <Input
@@ -284,7 +318,10 @@ export default function CreateRestaurantPage() {
                 placeholder="請輸入店家電話"
                 value={formData.contact.phone}
                 onChange={handleChange}
+                onKeyDown={handlePhoneKeyDown}
                 className=""
+                ref={phoneInputRef}
+                autoComplete="off"
               />
               
               <div>
@@ -314,6 +351,8 @@ export default function CreateRestaurantPage() {
                     onChange={(e) => setTagInput(e.target.value)}
                     onKeyDown={handleTagInputKeyDown}
                     className="flex-1"
+                    ref={tagInputRef}
+                    autoComplete="off"
                   />
                   <Button
                     type="button"
