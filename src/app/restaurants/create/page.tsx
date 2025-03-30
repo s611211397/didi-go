@@ -334,7 +334,7 @@ export default function CreateRestaurantPage() {
                       {tag}
                       <button
                         type="button"
-                        className="ml-2 text-green-600 hover:text-green-800"
+                        className="ml-2 text-green-600 hover:text-green-800 cursor-pointer"
                         onClick={() => handleRemoveTag(tag)}
                       >
                         &times;
