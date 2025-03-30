@@ -107,11 +107,11 @@ export default function CreateRestaurantPage() {
     const newErrors: typeof errors = {};
     
     if (!formData.name.trim()) {
-      newErrors.name = '請輸入餐廳名稱';
+      newErrors.name = '請輸入店家名稱';
     }
     
     if (!formData.address.street.trim()) {
-      newErrors['address.street'] = '請輸入餐廳地址';
+      newErrors['address.street'] = '請輸入店家地址';
     }
     
     setErrors(newErrors);
@@ -234,10 +234,10 @@ export default function CreateRestaurantPage() {
             
             <div className="space-y-6">
               <Input
-                label="餐廳名稱"
+                label="店家名稱"
                 id="name"
                 name="name"
-                placeholder="請輸入餐廳名稱"
+                placeholder="請輸入店家名稱"
                 value={formData.name}
                 onChange={handleChange}
                 error={errors.name}
@@ -265,7 +265,7 @@ export default function CreateRestaurantPage() {
                 label="聯絡電話"
                 id="phone"
                 name="contact.phone"
-                placeholder="請輸入餐廳電話"
+                placeholder="請輸入店家電話"
                 value={formData.contact.phone}
                 onChange={handleChange}
                 className=""
