@@ -12,7 +12,6 @@ export interface Restaurant extends BaseModel {
   minimumOrder?: number;        // 最低訂購金額
   openingHours?: OpeningHours;  // 營業時間
   menuItemsCount?: number;      // 菜單項目數量（方便快速顯示）
-  isActive: boolean;            // 是否啟用
   createdBy: FirebaseDocId;     // 建立者ID
   notes?: string;               // 備註事項
   tags?: string[];              // 標籤

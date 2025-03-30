@@ -55,14 +55,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
             </div>
           </div>
           
-          {/* 餐廳狀態標籤 */}
-          <div className={`px-3 py-1 rounded-full text-sm ${
-            restaurant.isActive 
-              ? 'bg-green-100 text-green-800' 
-              : 'bg-gray-100 text-gray-800'
-          }`}>
-            {restaurant.isActive ? '營業中' : '未營業'}
-          </div>
+          {/* 餐廳狀態標籤已移除 */}
         </div>
         
         {/* 操作按鈕 */}

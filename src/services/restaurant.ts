@@ -24,7 +24,6 @@ export const createRestaurant = async (params: CreateRestaurantParams, userId: s
     // 只將用戶輸入的參數加上系統必要的狀態欄位
     const restaurantData = {
       ...params,  // 保留用戶在表單中輸入的所有資料
-      isActive: true,  // 系統必需欄位
       createdBy: userId,  // 需要被索引的字段
       createdAt: serverTimestamp(),  // 需要被索引的字段
       updatedAt: serverTimestamp()  // 系統必需欄位
@@ -74,7 +73,6 @@ export const getRestaurants = async (userId: string): Promise<Restaurant[]> => {
         imageUrl: data.imageUrl,
         minimumOrder: data.minimumOrder,
         openingHours: data.openingHours,
-        isActive: data.isActive,
         createdBy: data.createdBy,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
