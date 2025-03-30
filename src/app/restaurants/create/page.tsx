@@ -289,7 +289,7 @@ export default function CreateRestaurantPage() {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  分類 (選填)
+                  類別 (選填)
                 </label>
                 <div className="flex flex-wrap gap-2 mb-2">
                   {formData.tags?.map((tag, index) => (
