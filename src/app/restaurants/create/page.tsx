@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -14,8 +14,12 @@ import { useRestaurants } from '@/hooks/useRestaurants'; // 使用餐廳Hook
  */
 export default function CreateRestaurantPage() {
   const router = useRouter();
+  const searchParams = useSearchParams(); // 獲取 URL 查詢參數
+  const restaurantId = searchParams.get('id'); // 嘗試獲取 id 參數
+  const isEditMode = !!restaurantId; // 判斷是否為編輯模式
+  
   const { currentUser: user, loading: authLoading } = useAuth();
-  const { addRestaurant, loading: restaurantLoading, error: restaurantError } = useRestaurants();
+  const { addRestaurant, updateRestaurantInfo, fetchRestaurant, error: restaurantError } = useRestaurants();
   
   // 表單狀態
   const [formData, setFormData] = useState<CreateRestaurantParams>({
@@ -115,24 +119,79 @@ export default function CreateRestaurantPage() {
   };
   
   // 處理表單提交
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) return;
     if (!user) return; // 確保用戶已登入
+    if (isSubmitting) return; // 防止重複提交
+    
+    setIsSubmitting(true); // 設置提交狀態
     
     try {
-      // 使用 useRestaurants hook 的 addRestaurant 方法
-      await addRestaurant(formData, user.uid);
+      if (isEditMode && restaurantId) {
+        // 編輯模式：更新餐廳
+        await updateRestaurantInfo(restaurantId, formData, user.uid);
+      } else {
+        // 新增模式：建立餐廳
+        await addRestaurant(formData, user.uid);
+      }
       
       // 成功後導航到餐廳列表頁
       router.push('/restaurants');
     } catch (error) {
-      console.error('新增餐廳失敗:', error);
+      console.error(isEditMode ? '更新餐廳失敗:' : '新增餐廳失敗:', error);
       // 錯誤已由 hook 內部處理，不需要再顯示提示
+      setIsSubmitting(false); // 重設提交狀態
     }
   };
   
+  // 從 Firebase 獲取餐廳資料並填充表單（僅在編輯模式下）
+  useEffect(() => {
+    // 預防無限循環的保護機制
+    let isMounted = true;
+
+    const loadRestaurantData = async () => {
+      if (isEditMode && restaurantId && user && isMounted) {
+        try {
+          const restaurantData = await fetchRestaurant(restaurantId);
+          if (restaurantData && isMounted) {
+            // 填充表單數據
+            setFormData({
+              name: restaurantData.name || '',
+              description: restaurantData.description || '',
+              address: {
+                street: restaurantData.address?.street || '',
+                city: restaurantData.address?.city || '',
+                district: restaurantData.address?.district || '',
+                postalCode: restaurantData.address?.postalCode || '',
+                notes: restaurantData.address?.notes || ''
+              },
+              contact: {
+                phone: restaurantData.contact?.phone || '',
+                email: restaurantData.contact?.email || '',
+                contactPerson: restaurantData.contact?.contactPerson || ''
+              },
+              minimumOrder: restaurantData.minimumOrder || 0,
+              notes: restaurantData.notes || '',
+              tags: restaurantData.tags || []
+            });
+          }
+        } catch (error) {
+          console.error('獲取餐廳資料失敗:', error);
+        }
+      }
+    };
+
+    loadRestaurantData();
+
+    // 清理函數
+    return () => {
+      isMounted = false;
+    };
+  }, [isEditMode, restaurantId, user, fetchRestaurant]);
+
   // 檢查用戶是否已登入
   useEffect(() => {
     if (!authLoading && !user) {
@@ -141,14 +200,6 @@ export default function CreateRestaurantPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, authLoading]);
 
-  if (authLoading || restaurantLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F7F7F7]">
-        <div className="text-[#10B981] text-xl">載入中...</div>
-      </div>
-    );
-  }
-  
   // 如果用戶未登入，不顯示內容（會被導向登入頁）
   if (!user) {
     return null;
@@ -160,7 +211,9 @@ export default function CreateRestaurantPage() {
       <div className="bg-white shadow-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-[#484848]">新增餐廳</h1>
+            <h1 className="text-2xl font-bold text-[#484848]">
+              {isEditMode ? '編輯餐廳' : '新增餐廳'}
+            </h1>
             <Link href="/restaurants">
               <button className="text-[#767676] hover:text-[#484848]">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -174,7 +227,7 @@ export default function CreateRestaurantPage() {
 
       {/* 主要內容區域 */}
       <div className="container mx-auto px-4 py-8 pb-20 md:pb-8">
-        <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
+        <form className="max-w-3xl mx-auto">
           {/* 基本資訊區塊 */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
             <h2 className="text-xl font-semibold text-[#484848] mb-4">基本資訊</h2>
@@ -291,10 +344,10 @@ export default function CreateRestaurantPage() {
               type="submit"
               variant="primary"
               className="w-full sm:w-auto"
-              isLoading={restaurantLoading}
-              disabled={restaurantLoading}
+              isLoading={false}
+              onClick={handleSubmit}
             >
-              {restaurantLoading ? '處理中...' : '新增餐廳'}
+              {isEditMode ? '儲存變更' : '新增餐廳'}
             </Button>
             
             {restaurantError && (

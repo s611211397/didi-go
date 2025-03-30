@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
@@ -78,7 +78,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
           </Link>
           
           <Link 
-            href={`/restaurants/${restaurant.id}`}
+            href={`/restaurants/create?id=${restaurant.id}`}
             className="inline-flex items-center justify-center px-4 py-2 border border-[#E5E7EB] text-[#767676] bg-white rounded-md hover:bg-[#E5E7EB] transition-colors duration-300"
           >
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -96,11 +96,12 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
  * 餐廳管理頁面
  */
 export default function RestaurantsPage() {
+  // 狀態管理
+  const [isInitialLoading, setIsInitialLoading] = useState(true); // 增加一個狀態追蹤初始載入
   const { currentUser: user, loading: authLoading } = useAuth();
   const router = useRouter();
   const { 
     restaurants, 
-    loading: restaurantsLoading, 
     error, 
     fetchRestaurants 
   } = useRestaurants();
@@ -116,7 +117,13 @@ export default function RestaurantsPage() {
           await fetchRestaurants(user.uid);
         } catch (error) {
           console.error('獲取餐廳列表失敗:', error);
+        } finally {
+          if (isMounted) {
+            setIsInitialLoading(false); // 無論成功或失敗，設置初始載入完成
+          }
         }
+      } else if (isMounted) {
+        setIsInitialLoading(false); // 如果沒有使用者，也設置初始載入完成
       }
     };
 
@@ -134,15 +141,6 @@ export default function RestaurantsPage() {
       router.push('/login');
     }
   }, [user, authLoading, router]);
-
-  // 如果正在載入，顯示載入狀態
-  if (authLoading || restaurantsLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F7F7F7]">
-        <div className="text-[#10B981] text-xl">載入中...</div>
-      </div>
-    );
-  }
 
   // 如果用戶未登入，不顯示內容（會被導向登入頁）
   if (!user) {
@@ -220,7 +218,7 @@ export default function RestaurantsPage() {
               <RestaurantCard key={restaurant.id} restaurant={restaurant} />
             ))}
           </div>
-        ) : (
+        ) : !isInitialLoading ? (
           <div className="bg-white rounded-lg shadow-md p-6 text-center">
             <div className="text-[#FFB400] text-5xl mb-4">
               <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -230,6 +228,8 @@ export default function RestaurantsPage() {
             <h3 className="text-xl font-semibold text-[#484848] mb-2">尚未新增餐廳</h3>
             <p className="text-[#767676] mb-6">開始新增您常用的餐廳，以便建立訂餐表單</p>
           </div>
+        ) : (
+          <div>{/* 初始載入中不顯示任何內容 */}</div>
         )}
       </div>
     </div>
