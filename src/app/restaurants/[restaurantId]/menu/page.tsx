@@ -136,7 +136,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
       <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-semibold text-[#484848]">
-            {menuItem ? '編輯菜單項目' : '新增菜單項目'}
+            {menuItem ? '編輯菜單項目' : ''}
           </h3>
           <button 
             onClick={onClose}
