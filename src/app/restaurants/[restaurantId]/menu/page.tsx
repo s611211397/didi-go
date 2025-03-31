@@ -132,15 +132,15 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-xl ring-1 ring-black/5">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-semibold text-[#484848]">
-            {menuItem ? '編輯菜單項目' : ''}
+    <div className="fixed inset-0 flex items-center justify-center z-50 p-3" onClick={onClose}>
+      <div className="bg-white rounded-lg px-6 pt-4 pb-5 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-xl ring-1 ring-black/5" onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="text-lg font-semibold text-[#484848]">
+          {menuItem ? '菜單內容' : '菜單內容'}
           </h3>
           <button 
             onClick={onClose}
-            className="text-[#767676] hover:text-[#484848]"
+            className="text-[#767676] hover:text-[#484848] cursor-pointer"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -155,7 +155,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
         )}
 
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
+          <div className="mb-3">
             <Input
               label="名稱"
               id="name"
@@ -170,7 +170,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
             />
           </div>
 
-          <div className="mb-4">
+          <div className="mb-3">
             <Input
               label="價格 (NT$)"
               id="price"
@@ -188,7 +188,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
             />
           </div>
 
-          <div className="mb-4">
+          <div className="mb-3">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               類別(選填)
             </label>
@@ -198,7 +198,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
                   {tag}
                   <button
                     type="button"
-                    className="ml-2 text-green-600 hover:text-green-800 cursor-pointer"
+                    className="ml-2 text-green-600 hover:text-green-800 cursor-pointer text-base font-semibold"
                     onClick={() => handleRemoveTag(tag)}
                   >
                     &times;
@@ -210,7 +210,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
               <Input
                 id="tagInput"
                 name="tagInput"
-                placeholder="輸入標籤，例如：辣、素食"
+                placeholder="輸入，例如：雞肉、牛肉"
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleTagInputKeyDown}
@@ -228,10 +228,10 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
                 新增
               </Button>
             </div>
-            <p className="mt-1 text-sm text-gray-500">使用「、」分隔，可一次輸入多個標籤</p>
+            <p className="mt-1 text-sm text-gray-500">使用「、」分隔，可一次輸入多個類別</p>
           </div>
 
-          <div className="mb-4">
+          <div className="mb-3">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               備註
             </label>
@@ -243,12 +243,12 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
               onKeyDown={handleDescriptionKeyDown}
               className="w-full px-3 py-2 border border-[#E5E7EB] rounded-md focus:outline-none focus:ring-2 focus:ring-[#10B981] text-black"
               placeholder="輸入備註"
-              rows={3}
+              rows={2}
               ref={descriptionInputRef}
             ></textarea>
           </div>
 
-          <div className="flex justify-end gap-3 mt-6">
+          <div className="flex justify-end gap-3 mt-4">
             <Button 
               variant="outline"
               type="button"

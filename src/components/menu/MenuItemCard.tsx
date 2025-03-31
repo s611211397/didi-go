@@ -32,8 +32,22 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ menuItem, onEdit, onDelete 
       <div className="p-4">
         <div className="flex justify-between items-start">
           <div className="flex-1">
-            <div className="flex flex-wrap items-center gap-2 mb-2">
+            <div className="flex flex-wrap items-center gap-1 mb-2">
               <h3 className="text-lg font-semibold text-[#484848]">{menuItem.name}</h3>
+              
+              {/* 標籤移至菜名後方 */}
+              {menuItem.tags && menuItem.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {menuItem.tags.map((tag, index) => (
+                    <span 
+                      key={index} 
+                      className="bg-[#F7F7F7] text-[#767676] text-xs px-2 py-1 rounded-full"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
             
             {/* 價格 */}
@@ -44,20 +58,6 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ menuItem, onEdit, onDelete 
             {/* 描述/備註 */}
             {menuItem.description && (
               <p className="text-[#767676] text-sm mb-3">{menuItem.description}</p>
-            )}
-            
-            {/* 標籤 */}
-            {menuItem.tags && menuItem.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1 mt-2">
-                {menuItem.tags.map((tag, index) => (
-                  <span 
-                    key={index} 
-                    className="bg-[#F7F7F7] text-[#767676] text-xs px-2 py-1 rounded-full"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
             )}
           </div>
         </div>
