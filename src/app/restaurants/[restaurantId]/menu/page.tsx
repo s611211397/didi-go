@@ -384,7 +384,7 @@ export default function MenuPage() {
                   </svg>
                 </button>
               </Link>
-              <h1 className="text-2xl font-bold text-[#484848]">菜單管理</h1>
+              <h1 className="text-2xl font-bold text-[#484848]">餐廳管理</h1>
             </div>
           </div>
         </div>
@@ -392,10 +392,7 @@ export default function MenuPage() {
 
       {/* 主要內容區域 */}
       <div className="container mx-auto px-4 py-8 pb-20 md:pb-8">
-        <div className="flex justify-between items-start mb-6">
-          <div>
-          </div>
-          
+        <div className="flex justify-start items-start mb-6">
           <Button 
             variant="primary"
             onClick={() => {
@@ -410,6 +407,9 @@ export default function MenuPage() {
           >
             新增菜單
           </Button>
+          
+          <div className="flex-1">
+          </div>
         </div>
         
         {/* 顯示菜單項目 */}
