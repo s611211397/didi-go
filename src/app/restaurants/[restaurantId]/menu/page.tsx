@@ -132,7 +132,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-semibold text-[#484848]">
@@ -190,24 +190,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
 
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              備註
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              onKeyDown={handleDescriptionKeyDown}
-              className="w-full px-3 py-2 border border-[#E5E7EB] rounded-md focus:outline-none focus:ring-2 focus:ring-[#10B981]"
-              placeholder="輸入備註"
-              rows={3}
-              ref={descriptionInputRef}
-            ></textarea>
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              標籤
+              類別(選填)
             </label>
             <div className="flex flex-wrap gap-2 mb-2">
               {tags.map((tag, index) => (
@@ -246,6 +229,23 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
               </Button>
             </div>
             <p className="mt-1 text-sm text-gray-500">使用「、」分隔，可一次輸入多個標籤</p>
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              備註
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              onKeyDown={handleDescriptionKeyDown}
+              className="w-full px-3 py-2 border border-[#E5E7EB] rounded-md focus:outline-none focus:ring-2 focus:ring-[#10B981] text-black"
+              placeholder="輸入備註"
+              rows={3}
+              ref={descriptionInputRef}
+            ></textarea>
           </div>
 
           <div className="flex justify-end gap-3 mt-6">
