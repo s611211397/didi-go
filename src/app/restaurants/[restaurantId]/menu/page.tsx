@@ -133,7 +133,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-xl ring-1 ring-black/5">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-semibold text-[#484848]">
             {menuItem ? '編輯菜單項目' : ''}
