@@ -182,7 +182,11 @@ const MessageDialog: React.FC<MessageDialogProps> = ({
           <Button 
             variant={primaryButtonConfig.variant}
             onClick={() => {
-              primaryButtonConfig.onClick ? primaryButtonConfig.onClick() : onClose();
+              if (primaryButtonConfig.onClick) {
+                primaryButtonConfig.onClick();
+              } else {
+                onClose();
+              }
             }}
           >
             {primaryButtonConfig.text}

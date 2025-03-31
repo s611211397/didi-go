@@ -109,6 +109,7 @@ export interface CreateRestaurantParams {
  * 建立菜單項目的參數
  */
 export interface CreateMenuItemParams {
+  restaurantId: string;
   name: string;
   description?: string;
   price: number;
