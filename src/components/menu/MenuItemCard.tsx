@@ -34,22 +34,6 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ menuItem, onEdit, onDelete 
           <div className="flex-1">
             <div className="flex flex-wrap items-center gap-2 mb-2">
               <h3 className="text-lg font-semibold text-[#484848]">{menuItem.name}</h3>
-              
-              {/* 顯示可用狀態 */}
-              <span className={`text-xs px-2 py-1 rounded-full ${
-                menuItem.isAvailable 
-                  ? 'bg-green-100 text-green-800' 
-                  : 'bg-gray-100 text-gray-600'
-              }`}>
-                {menuItem.isAvailable ? '供應中' : '已下架'}
-              </span>
-              
-              {/* 熱門標籤 */}
-              {menuItem.isPopular && (
-                <span className="bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full">
-                  熱門
-                </span>
-              )}
             </div>
             
             {/* 價格 */}
