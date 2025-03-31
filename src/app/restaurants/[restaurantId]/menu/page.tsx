@@ -394,12 +394,6 @@ export default function MenuPage() {
       <div className="container mx-auto px-4 py-8 pb-20 md:pb-8">
         <div className="flex justify-between items-start mb-6">
           <div>
-            <h2 className="text-xl font-semibold text-[#484848]">
-              {selectedRestaurant.name} - 菜單項目
-            </h2>
-            <p className="text-[#767676] mt-1">
-              管理您的菜單項目
-            </p>
           </div>
           
           <Button 
@@ -414,7 +408,7 @@ export default function MenuPage() {
               </svg>
             }
           >
-            新增菜單項目
+            新增菜單
           </Button>
         </div>
         
