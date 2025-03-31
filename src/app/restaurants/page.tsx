@@ -30,7 +30,17 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onDelete })
     }
   };
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden border border-[#E5E7EB]">
+    <div className="bg-white rounded-lg shadow-md overflow-hidden border border-[#E5E7EB] relative">
+      {/* 刪除按鈕改為右上角的 X 圖示 */}
+      <button
+        onClick={() => setShowDeleteConfirm(true)}
+        className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center text-red-500 hover:text-red-700 cursor-pointer transition-colors z-10"
+        aria-label="刪除餐廳"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
       <div className="p-6">
         <div className="flex justify-between items-start">
           <div>
@@ -81,7 +91,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onDelete })
           {/* 餐廳狀態標籤已移除 */}
         </div>
         
-        {/* 操作按鈕 */}
+        {/* 操作按鈕 - 移除底部的刪除按鈕 */}
         <div className="flex flex-wrap gap-3 mt-4">
           <Link 
             href={`/restaurants/${restaurant.id}/menu`}
@@ -102,19 +112,6 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onDelete })
             </svg>
             編輯資訊
           </Link>
-          
-          {/* 新增刪除按鈕 */}
-          <Button
-            variant="danger"
-            onClick={() => setShowDeleteConfirm(true)}
-            leftIcon={
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-              </svg>
-            }
-          >
-            刪除
-          </Button>
         </div>
         
         {/* 確認刪除對話框 */}
