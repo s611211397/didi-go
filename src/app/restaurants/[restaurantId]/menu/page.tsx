@@ -53,7 +53,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
   const handlePriceKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      descriptionInputRef.current?.focus();
+      tagInputRef.current?.focus();
     }
   };
 
