@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Restaurant } from '@/type/restaurant';
 import { useRestaurants } from '@/hooks/useRestaurants'; // 使用餐廳Hook
 import Button from '@/components/ui/Button';
+import { MessageDialog } from '@/components/ui/dialog';
 
 /**
  * 餐廳卡片元件
@@ -114,31 +115,26 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onDelete })
           </Link>
         </div>
         
-        {/* 確認刪除對話框 */}
-        {showDeleteConfirm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full">
-              <h3 className="text-xl font-semibold text-[#484848] mb-4">確認刪除</h3>
-              <p className="text-[#767676] mb-6">
-                您確定要刪除「{restaurant.name}」餐廳嗎？此操作無法恢復。
-              </p>
-              <div className="flex justify-end gap-3">
-                <Button 
-                  variant="outline"
-                  onClick={() => setShowDeleteConfirm(false)}
-                >
-                  取消
-                </Button>
-                <Button 
-                  variant="danger"
-                  onClick={handleDeleteConfirm}
-                >
-                  確認刪除
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* 確認刪除對話框 - 使用統一的 MessageDialog */}
+        <MessageDialog
+          show={showDeleteConfirm}
+          type="confirm"
+          title="確認刪除"
+          message={
+            <>您確定要刪除「{restaurant.name}」餐廳嗎？此操作無法恢復。</>
+          }
+          primaryButton={{
+            text: "確認刪除",
+            variant: "danger",
+            onClick: handleDeleteConfirm
+          }}
+          secondaryButton={{
+            text: "取消",
+            variant: "outline",
+            onClick: () => setShowDeleteConfirm(false)
+          }}
+          onClose={() => setShowDeleteConfirm(false)}
+        />
       </div>
     </div>
   );
@@ -204,21 +200,19 @@ export default function RestaurantsPage() {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F7F7F7]">
-        <div className="bg-white p-6 rounded-lg shadow-md text-center">
-          <div className="text-red-500 text-xl mb-4">
-            <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-          </div>
-          <h3 className="text-xl font-semibold text-[#484848] mb-2">發生錯誤</h3>
-          <p className="text-[#767676] mb-4">{error}</p>
-          <button 
-            onClick={() => fetchRestaurants(user.uid)}
-            className="px-4 py-2 bg-[#10B981] text-white rounded-md hover:bg-[#0D9668] transition-colors"
-          >
-            重試
-          </button>
-        </div>
+        <MessageDialog
+          show={true}
+          type="error"
+          title="發生錯誤"
+          message={error}
+          primaryButton={{
+            text: "重試",
+            variant: "primary",
+            onClick: () => fetchRestaurants(user.uid)
+          }}
+          onClose={() => {}}
+          showCloseButton={false}
+        />
       </div>
     );
   }

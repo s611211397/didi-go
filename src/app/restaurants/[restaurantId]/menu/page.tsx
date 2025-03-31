@@ -10,6 +10,43 @@ import { MenuItem, CreateMenuItemParams } from '@/type/restaurant';
 import MenuItemCard from '@/components/menu/MenuItemCard';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import { MessageDialog } from '@/components/ui/dialog';
+
+/**
+ * 無菜單項目時顯示的空狀態組件
+ */
+interface EmptyMenuStateProps {
+  onAddMenuItem: () => void;
+}
+
+const EmptyMenuState: React.FC<EmptyMenuStateProps> = ({ onAddMenuItem }) => {
+  return (
+    <div className="bg-white rounded-lg shadow-md p-6 text-center">
+      <div className="text-[#FFB400] text-5xl mb-4">
+        <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+        </svg>
+      </div>
+      <h3 className="text-xl font-semibold text-[#484848] mb-2">尚未新增菜單</h3>
+      <p className="text-[#767676] mb-6">開始新增您的菜單項目，以便顯示給顧客</p>
+      <Button 
+        variant="primary"
+        onClick={onAddMenuItem}
+      >
+        新增第一個菜單項目
+      </Button>
+    </div>
+  );
+};
+
+/**
+ * 菜單載入中狀態組件
+ */
+const LoadingMenuState: React.FC = () => (
+  <div className="bg-white rounded-lg shadow-md p-6 text-center">
+    <p className="text-[#767676]">正在載入菜單資料...</p>
+  </div>
+);
 
 /**
  * 新增/編輯菜單項目的表單界面
@@ -35,6 +72,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
   const [tagInput, setTagInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showErrorDialog, setShowErrorDialog] = useState(false);
   
   // 建立輸入框的 refs
   const nameInputRef = useRef<HTMLInputElement>(null);
@@ -99,8 +137,12 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
                      isNaN(parseFloat(price)) || parseFloat(price) <= 0 ? '請輸入有效價格' : 
                      null;
     
-    setError(newError);
-    return newError === null;
+    if (newError) {
+      setError(newError);
+      setShowErrorDialog(true);
+      return false;
+    }
+    return true;
   };
 
   // 處理表單提交
@@ -126,17 +168,18 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '保存菜單項目失敗';
       setError(errorMessage);
+      setShowErrorDialog(true);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 p-3" onClick={onClose}>
+    <div className="fixed inset-0 flex items-center justify-center z-50 p-3 bg-black bg-opacity-50" onClick={onClose}>
       <div className="bg-white rounded-lg px-6 pt-4 pb-5 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-xl ring-1 ring-black/5" onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-3">
           <h3 className="text-lg font-semibold text-[#484848]">
-          {menuItem ? '菜單內容' : '菜單內容'}
+            菜單內容
           </h3>
           <button 
             onClick={onClose}
@@ -148,11 +191,19 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
           </button>
         </div>
 
-        {error && (
-          <div className="bg-red-50 text-red-700 p-3 rounded-md mb-4">
-            {error}
-          </div>
-        )}
+        {/* 錯誤訊息對話框 */}
+        <MessageDialog
+          show={showErrorDialog}
+          type="error"
+          title="表單驗證錯誤"
+          message={error || ''}
+          primaryButton={{
+            text: "確定",
+            variant: "primary",
+            onClick: () => setShowErrorDialog(false)
+          }}
+          onClose={() => setShowErrorDialog(false)}
+        />
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
@@ -425,28 +476,12 @@ export default function MenuPage() {
             ))}
           </div>
         ) : !menuLoading ? (
-          <div className="bg-white rounded-lg shadow-md p-6 text-center">
-            <div className="text-[#FFB400] text-5xl mb-4">
-              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-[#484848] mb-2">尚未新增菜單</h3>
-            <p className="text-[#767676] mb-6">開始新增您的菜單項目，以便顯示給顧客</p>
-            <Button 
-              variant="primary"
-              onClick={() => {
-                setEditingMenuItem(null);
-                setShowForm(true);
-              }}
-            >
-              新增第一個菜單項目
-            </Button>
-          </div>
+          <EmptyMenuState onAddMenuItem={() => {
+            setEditingMenuItem(null);
+            setShowForm(true);
+          }} />
         ) : (
-          <div className="bg-white rounded-lg shadow-md p-6 text-center">
-            <p className="text-[#767676]">正在載入菜單資料...</p>
-          </div>
+          <LoadingMenuState />
         )}
       </div>
       

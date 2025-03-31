@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { MenuItem } from '@/type/restaurant';
 import Button from '@/components/ui/Button';
+import { MessageDialog } from '@/components/ui/dialog';
 
 interface MenuItemCardProps {
   menuItem: MenuItem;
@@ -15,14 +16,18 @@ interface MenuItemCardProps {
  */
 const MenuItemCard: React.FC<MenuItemCardProps> = ({ menuItem, onEdit, onDelete }) => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // 處理刪除確認
   const handleDeleteConfirm = async () => {
     try {
+      setIsDeleting(true);
       await onDelete(menuItem.id);
       setShowDeleteConfirm(false);
     } catch (error) {
       console.error('刪除菜單項目失敗:', error);
+    } finally {
+      setIsDeleting(false);
       setShowDeleteConfirm(false);
     }
   };
@@ -90,31 +95,26 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ menuItem, onEdit, onDelete 
           </Button>
         </div>
         
-        {/* 確認刪除對話框 */}
-        {showDeleteConfirm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full">
-              <h3 className="text-xl font-semibold text-[#484848] mb-4">確認刪除</h3>
-              <p className="text-[#767676] mb-6">
-                您確定要刪除「{menuItem.name}」菜單項目嗎？此操作無法恢復。
-              </p>
-              <div className="flex justify-end gap-3">
-                <Button 
-                  variant="outline"
-                  onClick={() => setShowDeleteConfirm(false)}
-                >
-                  取消
-                </Button>
-                <Button 
-                  variant="danger"
-                  onClick={handleDeleteConfirm}
-                >
-                  確認刪除
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* 確認刪除對話框 - 使用統一的 MessageDialog */}
+        <MessageDialog
+          show={showDeleteConfirm}
+          type="confirm"
+          title="確認刪除"
+          message={
+            <>您確定要刪除「{menuItem.name}」菜單項目嗎？此操作無法恢復。</>
+          }
+          primaryButton={{
+            text: isDeleting ? "刪除中..." : "確認刪除",
+            variant: "danger",
+            onClick: handleDeleteConfirm
+          }}
+          secondaryButton={{
+            text: "取消",
+            variant: "outline",
+            onClick: () => setShowDeleteConfirm(false)
+          }}
+          onClose={() => setShowDeleteConfirm(false)}
+        />
       </div>
     </div>
   );
