@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useRestaurants } from '@/hooks/useRestaurants';
@@ -175,15 +174,12 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 p-3" onClick={onClose}>
-      <div className="bg-white rounded-lg px-6 pt-4 pb-5 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-xl ring-1 ring-black/5" onClick={(e) => e.stopPropagation()}>
-        <div className="flex justify-between items-center mb-3">
-          <h3 className="text-lg font-semibold text-[#484848]">
-            菜單內容
-          </h3>
+    <div className="fixed inset-0 flex items-start justify-center z-50 p-3 pt-[85px]" onClick={onClose}>
+      <div className="bg-white rounded-lg px-6 pt-0 pb-5 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-xl ring-1 ring-black/5" onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-end mb-1">
           <button 
             onClick={onClose}
-            className="text-[#767676] hover:text-[#484848] cursor-pointer"
+            className="text-[#767676] hover:text-[#484848] cursor-pointer mt-2"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -423,24 +419,6 @@ export default function MenuPage() {
   // 顯示菜單項目
   return (
     <div className="min-h-screen bg-[#F7F7F7]">
-      {/* 頂部導航區域 */}
-      <div className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center">
-              <Link href="/restaurants">
-                <button className="text-[#767676] hover:text-[#484848] mr-2">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                  </svg>
-                </button>
-              </Link>
-              <h1 className="text-2xl font-bold text-[#484848]">餐廳管理</h1>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* 主要內容區域 */}
       <div className="container mx-auto px-4 py-8 pb-20 md:pb-8">
         <div className="flex justify-start items-start mb-6">
