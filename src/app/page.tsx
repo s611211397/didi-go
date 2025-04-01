@@ -52,7 +52,7 @@ export default function HomePage() {
       {/* 頂部導航區域 */}
       <div className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-[#484848]">DiDi GO</h1>
+          <h1 className="text-2xl font-bold text-[#484848]">Din GO</h1>
           <div className="flex items-center gap-2 md:gap-4">
             <span className="text-[#767676]">Hi, {displayName}</span>
             {/* 用戶頭像 */}
