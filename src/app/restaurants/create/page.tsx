@@ -185,7 +185,7 @@ export default function CreateRestaurantPage() {
       // 成功後導航到餐廳列表頁
       router.push('/restaurants');
     } catch (error) {
-      console.error(isEditMode ? '更新餐廳失敗:' : '新增餐廳失敗:', error);
+      console.error(isEditMode ? '更新店家失敗:' : '新增店家失敗:', error);
       // 錯誤已由 hook 內部處理，不需要再顯示提示
       setIsSubmitting(false); // 重設提交狀態
     }
@@ -223,7 +223,7 @@ export default function CreateRestaurantPage() {
             });
           }
         } catch (error) {
-          console.error('獲取餐廳資料失敗:', error);
+          console.error('獲取店家資料失敗:', error);
         }
       }
     };
@@ -385,7 +385,7 @@ export default function CreateRestaurantPage() {
               isLoading={false}
               onClick={handleSubmit}
             >
-              {isEditMode ? '儲存變更' : '新增餐廳'}
+              {isEditMode ? '儲存變更' : '新增店家'}
             </Button>
             
             {restaurantError && (

@@ -232,7 +232,7 @@ export default function RestaurantsPage() {
                 </svg>
               }
             >
-              新增餐廳
+              新增店家
             </Button>
           </Link>
         </div>

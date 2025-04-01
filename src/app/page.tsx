@@ -81,8 +81,8 @@ export default function HomePage() {
           />
           
           <FeatureCard 
-            title="餐廳管理" 
-            description="管理訂餐餐廳與菜單內容" 
+            title="店家管理" 
+            description="管理店家與菜單" 
             icon={<RestaurantIcon />} 
             linkTo="/restaurants" 
             color="border-[#FFB400]"
