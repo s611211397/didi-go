@@ -45,6 +45,8 @@
 │   │   ├── register/     # 註冊頁面
 │   │   │   └── page.tsx  # 註冊頁面元件
 │   │   ├── restaurants/  # 餐廳相關頁面
+│   │   │   │   ├── [restaurantId]
+│   │   │   │   │   └── page.tsx
 │   │   │   │   ├── menu/ # 菜單頁面
 │   │   │   │   │   └── page.tsx
 │   │   │   └── page.tsx  # 餐廳列表頁面
