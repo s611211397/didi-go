@@ -18,7 +18,7 @@ const Header: React.FC = () => {
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center">
             <Link href="/" className="text-2xl font-bold text-[#484848]">
-              DiDi GO
+              Din GO
             </Link>
           </div>
           <div>
@@ -42,7 +42,7 @@ const Header: React.FC = () => {
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <div className="flex items-center">
           <Link href="/" className="text-2xl font-bold text-[#484848] mr-6">
-            DiDi GO
+            Din GO
           </Link>
           
           {/* 導航連結 - 只在中等及以上屏幕顯示 */}
