@@ -12,7 +12,7 @@ import MobileNavBar from '@/components/layout/MobileNavBar';
 
 // 首頁元件
 export default function HomePage() {
-  const { currentUser: user, userProfile, loading } = useAuth();
+  const { currentUser: user, loading } = useAuth();
   const router = useRouter();
   
   // 模擬進行中的訂單資料（實際應用中應從服務或 Context 獲取）
@@ -44,24 +44,10 @@ export default function HomePage() {
     return null;
   }
 
-  // 從用戶資料或當前用戶中獲取顯示名稱
-  const displayName = userProfile?.displayName || user.displayName || '使用者';
+  // 用戶已成功登入，繼續顯示頁面內容
 
   return (
     <div className="min-h-screen bg-[#F7F7F7]">
-      {/* 頂部導航區域 */}
-      <div className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-[#484848]">Din GO</h1>
-          <div className="flex items-center gap-2 md:gap-4">
-            <span className="text-[#767676]">Hi, {displayName}</span>
-            {/* 用戶頭像 */}
-            <div className="w-10 h-10 rounded-full bg-[#10B981] text-white flex items-center justify-center">
-              {displayName[0].toUpperCase()}
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* 主要內容區域 */}
       <div className="container mx-auto px-4 py-8 pb-20 md:pb-8"> {/* 添加底部內邊距，避免在手機版被底部導航遮擋 */}
