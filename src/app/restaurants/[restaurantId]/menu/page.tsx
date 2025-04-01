@@ -39,15 +39,6 @@ const EmptyMenuState: React.FC<EmptyMenuStateProps> = ({ onAddMenuItem }) => {
 };
 
 /**
- * 菜單載入中狀態組件
- */
-const LoadingMenuState: React.FC = () => (
-  <div className="bg-white rounded-lg shadow-md p-6 text-center">
-    <p className="text-[#767676]">正在載入菜單資料...</p>
-  </div>
-);
-
-/**
  * 新增/編輯菜單項目的表單界面
  */
 interface MenuItemFormProps {
@@ -309,7 +300,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
               type="submit"
               disabled={isSubmitting}
             >
-              {isSubmitting ? '儲存中...' : '儲存'}
+              儲存
             </Button>
           </div>
         </form>
@@ -337,7 +328,6 @@ export default function MenuPage() {
   const { selectedRestaurant, fetchRestaurant } = useRestaurants();
   const { 
     menuItems, 
-    loading: menuLoading, 
     fetchMenuItems,
     addMenuItem,
     updateMenuItemInfo,
@@ -411,7 +401,7 @@ export default function MenuPage() {
     await fetchMenuItems(restaurantId);
   };
   
-  // 如果尚未載入餐廳資訊，顯示載入中
+  // 如果尚未載入餐廳資訊，返回 null (不顯示任何載入狀態)
   if (isInitialLoading || !selectedRestaurant) {
     return null;
   }
@@ -453,13 +443,11 @@ export default function MenuPage() {
               />
             ))}
           </div>
-        ) : !menuLoading ? (
+        ) : (
           <EmptyMenuState onAddMenuItem={() => {
             setEditingMenuItem(null);
             setShowForm(true);
           }} />
-        ) : (
-          <LoadingMenuState />
         )}
       </div>
       
