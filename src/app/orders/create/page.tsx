@@ -295,12 +295,13 @@ const CreateOrderPage: React.FC = () => {
           </div>
         </form>
         
-        {/* 建立訂單按鈕 - 卡片下方靠右對齊 */}
-        <div className="flex justify-end mt-6">
+        {/* 建立訂單按鈕 - 固定在畫面右下角 */}
+        <div className="fixed bottom-20 right-6 md:bottom-8 md:right-30 z-10">
           <Button 
             type="button" 
             onClick={handleSubmit(onSubmit)}
             variant="primary"
+            className="shadow-lg rounded-full px-6 py-3" 
             leftIcon={
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
