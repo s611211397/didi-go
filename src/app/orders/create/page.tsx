@@ -158,22 +158,6 @@ const CreateOrderPage: React.FC = () => {
       
       {/* 主要內容區域 */}
       <div className="container mx-auto px-4 py-6 pb-20 md:pb-8">
-        {/* 頁面標題和主要按鈕 */}
-        <div className="flex items-center mb-6">
-          <Button 
-            type="button" 
-            onClick={handleSubmit(onSubmit)}
-            
-            variant="primary"
-            leftIcon={
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
-              </svg>
-            }
-          >
-            建立訂單
-          </Button>
-        </div>
         
         <form className="space-y-6">
           {/* 所有訂單信息的卡片 */}
@@ -310,6 +294,22 @@ const CreateOrderPage: React.FC = () => {
             </div>
           </div>
         </form>
+        
+        {/* 建立訂單按鈕 - 卡片下方靠右對齊 */}
+        <div className="flex justify-end mt-6">
+          <Button 
+            type="button" 
+            onClick={handleSubmit(onSubmit)}
+            variant="primary"
+            leftIcon={
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+            }
+          >
+            建立訂單
+          </Button>
+        </div>
       </div>
       {/* 底部導航區域 (手機版) */}
       <MobileNavBar />
