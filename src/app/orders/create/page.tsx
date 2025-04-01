@@ -149,20 +149,7 @@ const CreateOrderPage: React.FC = () => {
         </div>
       )}
       
-      {/* 載入狀態 */}
-      {isLoading && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <div className="flex items-center space-x-3">
-              <svg className="animate-spin h-5 w-5 text-[#10B981]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              <span>處理中...</span>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* 主要內容區域 */}
       <div className="container mx-auto px-4 py-6 pb-20 md:pb-8">
@@ -307,7 +294,7 @@ const CreateOrderPage: React.FC = () => {
               className="bg-[#10B981] text-white px-6 py-3 rounded-md hover:bg-opacity-90 transition-all duration-300 font-medium"
               disabled={isLoading}
             >
-              {isLoading ? '處理中...' : '建立訂單'}
+              建立訂單
             </button>
           </div>
         </form>
