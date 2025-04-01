@@ -54,7 +54,7 @@ const Header: React.FC = () => {
                   <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
               </span>
-              新增訂單
+              建立訂單
             </Link>
             
             <Link href="/orders/history" className="flex items-center text-[#484848] hover:text-[#3B82F6] transition-colors">
