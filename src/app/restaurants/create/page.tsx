@@ -251,24 +251,6 @@ export default function CreateRestaurantPage() {
   
   return (
     <div className="min-h-screen bg-[#F7F7F7]">
-      {/* 頂部導航區域 */}
-      <div className="bg-white shadow-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-[#484848]">
-              {isEditMode ? '編輯餐廳' : '新增餐廳'}
-            </h1>
-            <Link href="/restaurants">
-              <button className="text-[#767676] hover:text-[#484848]">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                </svg>
-              </button>
-            </Link>
-          </div>
-        </div>
-      </div>
-
       {/* 主要內容區域 */}
       <div className="container mx-auto px-4 py-8 pb-20 md:pb-8">
         <form className="max-w-3xl mx-auto" onSubmit={(e) => e.preventDefault()}>

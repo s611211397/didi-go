@@ -140,22 +140,6 @@ const CreateOrderPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F7F7F7]">
-      {/* 頂部導航區域 */}
-      <div className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center">
-            <Link href="/" className="mr-2">
-              <button className="p-2 rounded-full hover:bg-gray-100">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M19 12H5M12 19l-7-7 7-7"/>
-                </svg>
-              </button>
-            </Link>
-            <h1 className="text-2xl font-bold text-[#484848]">新增訂單</h1>
-          </div>
-        </div>
-      </div>
-      
       {/* 顯示錯誤信息 */}
       {error && (
         <div className="container mx-auto px-4 mt-4">
