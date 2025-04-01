@@ -154,93 +154,22 @@ const CreateOrderPage: React.FC = () => {
       {/* 主要內容區域 */}
       <div className="container mx-auto px-4 py-6 pb-20 md:pb-8">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* 訂單標題 */}
+          {/* 所有訂單信息的卡片 */}
           <div className="bg-white rounded-lg shadow-md p-6">
-            <label className="block text-[#484848] text-lg font-medium mb-2">訂單標題</label>
-            <input
-              type="text"
-              className={`w-full p-3 border rounded-md ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
-              placeholder="例如：今日午餐大同便當"
-              {...register('title', { required: '請輸入訂單標題' })}
-            />
-            {errors.title && <p className="mt-1 text-red-500 text-sm">{errors.title.message}</p>}
-          </div>
-
-          {/* 餐廳選擇 */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <label className="block text-[#484848] text-lg font-medium mb-2">選擇餐廳</label>
-            
-            {/* 類別標籤 */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              {categories.map((category) => (
-                <button
-                  key={category}
-                  type="button"
-                  className={`px-4 py-2 rounded-full text-sm ${
-                    selectedCategory === category
-                      ? 'bg-[#10B981] text-white'
-                      : 'bg-gray-200 text-[#484848] hover:bg-gray-300'
-                  }`}
-                  onClick={() => setSelectedCategory(category)}
-                >
-                  {category}
-                </button>
-              ))}
+            {/* 訂單標題部分 */}
+            <div className="mb-8">
+              <label className="block text-[#484848] text-lg font-medium mb-2">訂單標題</label>
+              <input
+                type="text"
+                className={`w-full p-3 border rounded-md ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
+                placeholder="例如：今日午餐大同便當"
+                {...register('title', { required: '請輸入訂單標題' })}
+              />
+              {errors.title && <p className="mt-1 text-red-500 text-sm">{errors.title.message}</p>}
             </div>
-            
-            {/* 餐廳卡片 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filteredRestaurants.length > 0 ? (
-                filteredRestaurants.map((restaurant) => (
-                  <div
-                    key={restaurant.id}
-                    className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                      selectedRestaurantId === restaurant.id
-                        ? 'border-[#10B981] bg-green-50'
-                        : 'border-gray-200 hover:border-[#10B981]'
-                    }`}
-                    onClick={() => setValue('restaurantId', restaurant.id)}
-                  >
-                    <div className="flex items-center gap-1 flex-wrap">
-                      <h3 className="text-[#484848] font-medium mr-2">{restaurant.name}</h3>
-                      {restaurant.tags && restaurant.tags.map((tag, index) => (
-                        <span key={index} className="text-xs px-2 py-1 bg-gray-200 rounded-full text-[#767676]">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    {restaurant.description && (
-                      <p className="text-[#767676] text-sm mt-2">{restaurant.description}</p>
-                    )}
-                    {restaurant.address && (
-                      <p className="text-[#767676] text-xs mt-1">{restaurant.address.street}</p>
-                    )}
-                  </div>
-                ))
-              ) : (
-                <div className="col-span-2 py-8 text-center">
-                  <p className="text-[#767676]">沒有符合所選類別的餐廳</p>
-                  {categories.length > 1 && (
-                    <button 
-                      type="button"
-                      onClick={() => setSelectedCategory('全部')}
-                      className="mt-2 text-[#10B981] hover:underline"
-                    >
-                      顯示所有餐廳
-                    </button>
-                  )}
-                  <p className="mt-4 text-sm text-[#767676]">
-                    還沒有餐廳？<Link href="/restaurants/create" className="text-[#10B981] hover:underline">新增餐廳</Link>
-                  </p>
-                </div>
-              )}
-            </div>
-            {errors.restaurantId && <p className="mt-2 text-red-500 text-sm">{errors.restaurantId.message}</p>}
-          </div>
 
-          {/* 時間設定 */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex flex-col md:flex-row md:gap-6">
+            {/* 時間設定部分 */}
+            <div className="flex flex-col md:flex-row md:gap-6 mb-8">
               <div className="flex-1 mb-4 md:mb-0">
                 <label className="block text-[#484848] text-lg font-medium mb-2">訂單截止時間</label>
                 <Controller
@@ -275,23 +204,95 @@ const CreateOrderPage: React.FC = () => {
                 {errors.deliveryTime && <p className="mt-1 text-red-500 text-sm">{errors.deliveryTime.message}</p>}
               </div>
             </div>
-          </div>
 
-          {/* 備註 */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <label className="block text-[#484848] text-lg font-medium mb-2">備註 (選填)</label>
-            <textarea
-              className="w-full p-3 border border-gray-300 rounded-md min-h-[100px]"
-              placeholder="如有特殊需求，請在此說明"
-              {...register('note')}
-            ></textarea>
+            {/* 餐廳選擇部分 */}
+            <div className="mb-8">
+              <label className="block text-[#484848] text-lg font-medium mb-2">選擇餐廳</label>
+              
+              {/* 類別標籤 */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    type="button"
+                    className={`px-4 py-2 rounded-full text-sm ${
+                      selectedCategory === category
+                        ? 'bg-[#10B981] text-white'
+                        : 'bg-gray-200 text-[#484848] hover:bg-gray-300'
+                    }`}
+                    onClick={() => setSelectedCategory(category)}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+              
+              {/* 餐廳卡片 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {filteredRestaurants.length > 0 ? (
+                  filteredRestaurants.map((restaurant) => (
+                    <div
+                      key={restaurant.id}
+                      className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                        selectedRestaurantId === restaurant.id
+                          ? 'border-[#10B981] bg-green-50'
+                          : 'border-gray-200 hover:border-[#10B981]'
+                      }`}
+                      onClick={() => setValue('restaurantId', restaurant.id)}
+                    >
+                      <div className="flex items-center gap-1 flex-wrap">
+                        <h3 className="text-[#484848] font-medium mr-2">{restaurant.name}</h3>
+                        {restaurant.tags && restaurant.tags.map((tag, index) => (
+                          <span key={index} className="text-xs px-2 py-1 bg-gray-200 rounded-full text-[#767676]">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      {restaurant.description && (
+                        <p className="text-[#767676] text-sm mt-2">{restaurant.description}</p>
+                      )}
+                      {restaurant.address && (
+                        <p className="text-[#767676] text-xs mt-1">{restaurant.address.street}</p>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="col-span-2 py-8 text-center">
+                    <p className="text-[#767676]">沒有符合所選類別的餐廳</p>
+                    {categories.length > 1 && (
+                      <button 
+                        type="button"
+                        onClick={() => setSelectedCategory('全部')}
+                        className="mt-2 text-[#10B981] hover:underline"
+                      >
+                        顯示所有餐廳
+                      </button>
+                    )}
+                    <p className="mt-4 text-sm text-[#767676]">
+                      還沒有餐廳？<Link href="/restaurants/create" className="text-[#10B981] hover:underline">新增餐廳</Link>
+                    </p>
+                  </div>
+                )}
+              </div>
+              {errors.restaurantId && <p className="mt-2 text-red-500 text-sm">{errors.restaurantId.message}</p>}
+            </div>
+
+            {/* 備註部分 */}
+            <div>
+              <label className="block text-[#484848] text-lg font-medium mb-2">備註 (選填)</label>
+              <textarea
+                className="w-full p-3 border border-gray-300 rounded-md min-h-[100px]"
+                placeholder="如有特殊需求，請在此說明"
+                {...register('note')}
+              ></textarea>
+            </div>
           </div>
 
           {/* 提交按鈕 */}
           <div className="flex justify-end">
             <button
               type="submit"
-              className="bg-[#10B981] text-white px-6 py-3 rounded-md hover:bg-opacity-90 transition-all duration-300 font-medium"
+              className="bg-[#10B981] text-white px-6 py-3 rounded-md hover:bg-opacity-90 transition-all duration-300 font-medium cursor-pointer"
               disabled={isLoading}
             >
               建立訂單
