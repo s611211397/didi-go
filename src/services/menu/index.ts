@@ -32,6 +32,11 @@ export const createMenuItem = async (params: CreateMenuItemParams): Promise<stri
     if (!menuItemData.tags) {
       menuItemData.tags = [];
     }
+    
+    // 確保 description 欄位存在且不為 undefined
+    if (menuItemData.description === undefined) {
+      menuItemData.description = '';
+    }
 
     // 添加文檔到菜單項目集合
     const docRef = await addDoc(collection(db, 'menuItems'), menuItemData);

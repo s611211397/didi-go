@@ -148,7 +148,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
         restaurantId,
         name: name.trim(),
         price: parseFloat(price),
-        description: description.trim() || undefined,
+        description: description.trim() || '',  // 使用空字符串而非 undefined
         tags: tags.length > 0 ? tags : undefined,
         isAvailable: true
       };
