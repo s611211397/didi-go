@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 
 /**
@@ -10,6 +11,19 @@ import { useAuth } from '@/hooks/useAuth';
  */
 const Header: React.FC = () => {
   const { currentUser, userProfile } = useAuth();
+  const pathname = usePathname();
+  
+  // 檢查當前路徑是否匹配指定的路徑模式
+  const isActivePath = (path: string): boolean => {
+    if (path === '/orders/create') {
+      return pathname === path;
+    } else if (path === '/orders/history') {
+      return pathname === path || pathname.startsWith('/orders/history/');
+    } else if (path === '/restaurants') {
+      return pathname === path || pathname.startsWith('/restaurants/');
+    }
+    return false;
+  };
   
   // 如果用戶未登入，不顯示用戶資訊部分
   if (!currentUser) {
@@ -47,7 +61,12 @@ const Header: React.FC = () => {
           
           {/* 導航連結 - 只在中等及以上屏幕顯示 */}
           <div className="hidden md:flex items-center space-x-6">
-            <Link href="/orders/create" className="flex items-center text-[#484848] hover:text-[#10B981] transition-colors">
+            <Link 
+              href="/orders/create" 
+              className={`flex items-center transition-colors relative py-2 ${isActivePath('/orders/create') 
+                ? 'text-[#10B981] font-medium after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[#10B981]' 
+                : 'text-[#484848] hover:text-[#10B981]'}`}
+            >
               <span className="w-5 h-5 mr-1 text-[#10B981]">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -57,7 +76,12 @@ const Header: React.FC = () => {
               建立訂單
             </Link>
             
-            <Link href="/orders/history" className="flex items-center text-[#484848] hover:text-[#3B82F6] transition-colors">
+            <Link 
+              href="/orders/history" 
+              className={`flex items-center transition-colors relative py-2 ${isActivePath('/orders/history') 
+                ? 'text-[#3B82F6] font-medium after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[#3B82F6]' 
+                : 'text-[#484848] hover:text-[#3B82F6]'}`}
+            >
               <span className="w-5 h-5 mr-1 text-[#3B82F6]">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -66,7 +90,12 @@ const Header: React.FC = () => {
               訂單歷史
             </Link>
             
-            <Link href="/restaurants" className="flex items-center text-[#484848] hover:text-[#FFB400] transition-colors">
+            <Link 
+              href="/restaurants" 
+              className={`flex items-center transition-colors relative py-2 ${isActivePath('/restaurants') 
+                ? 'text-[#FFB400] font-medium after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[#FFB400]' 
+                : 'text-[#484848] hover:text-[#FFB400]'}`}
+            >
               <span className="w-5 h-5 mr-1 text-[#FFB400]">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
