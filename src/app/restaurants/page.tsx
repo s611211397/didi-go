@@ -220,7 +220,7 @@ export default function RestaurantsPage() {
   return (
     <div className="min-h-screen bg-[#F7F7F7]">
       {/* 主要內容區域 */}
-      <div className="container mx-auto px-4 py-8 pb-20 md:pb-8"> {/* 添加底部內邊距，避免在手機版被底部導航遮擋 */}
+      <div className="container mx-auto px-4 py-6 pb-20 md:pb-8"> {/* 添加底部內邊距，避免在手機版被底部導航遮擋 */}
         <div className="flex items-center mb-6">
           <Link href="/restaurants/create">
             <Button 
