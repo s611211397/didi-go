@@ -145,26 +145,38 @@ const OrderDetailsPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-800 mb-4">訂單明細</h1>
           
           {order ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex items-center">
-                <span className="text-gray-600 mr-2">餐廳：</span>
-                <span className="font-medium">
-                  {order.title.split('從')[1]?.split('訂購')[0].trim() || order.tags?.[0] || '未知餐廳'}
-                </span>
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="flex items-center">
+                  <span className="text-gray-600 mr-2">餐廳：</span>
+                  <span className="font-medium">
+                    {order.title.split('從')[1]?.split('訂購')[0].trim() || order.tags?.[0] || '未知餐廳'}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <span className="text-gray-600 mr-2">截止時間：</span>
+                  <span className="font-medium">{formatDateTime(order.deadlineTime)}</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="text-gray-600 mr-2">預計送達：</span>
+                  <span className="font-medium">
+                    {order.estimatedDeliveryTime 
+                      ? formatDateTime(order.estimatedDeliveryTime) 
+                      : '未設定'}
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center">
-                <span className="text-gray-600 mr-2">截止時間：</span>
-                <span className="font-medium">{formatDateTime(order.deadlineTime)}</span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-gray-600 mr-2">預計送達：</span>
-                <span className="font-medium">
-                  {order.estimatedDeliveryTime 
-                    ? formatDateTime(order.estimatedDeliveryTime) 
-                    : '未設定'}
-                </span>
-              </div>
-            </div>
+              
+              {/* 備註區塊 */}
+              {order.notes && order.notes.trim() !== '' && (
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <div className="flex">
+                    <span className="text-gray-600 mr-2">備註：</span>
+                    <span className="text-gray-800">{order.notes}</span>
+                  </div>
+                </div>
+              )}
+            </>
           ) : (
             <div className="py-4 text-center text-gray-500">
               {isLoading ? '載入訂單資訊中...' : '無法顯示訂單資訊'}
