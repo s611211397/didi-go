@@ -1,5 +1,5 @@
 import { db } from '@/lib/firebase';
-import { Order, CreateOrderParams } from '@/type/order';
+import { Order, CreateOrderParams, OrderItem, CreateOrderItemParams } from '@/type/order';
 import { OrderStatus, PaymentStatus } from '@/type/common';
 import { 
   collection, 
@@ -169,5 +169,122 @@ export const deleteOrder = async (orderId: string): Promise<void> => {
   } catch (error) {
     console.error('刪除訂單失敗:', error);
     throw new Error('刪除訂單失敗，請稍後再試');
+  }
+};
+
+/**
+ * 獲取訂單項目列表
+ * @param orderId 訂單ID
+ */
+export const getOrderItems = async (orderId: string): Promise<OrderItem[]> => {
+  try {
+    const orderItemsRef = collection(db, 'orders', orderId, 'order_items');
+    const querySnapshot = await getDocs(orderItemsRef);
+    
+    const orderItems: OrderItem[] = [];
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      orderItems.push({
+        id: doc.id,
+        ...data
+      } as OrderItem);
+    });
+    
+    return orderItems;
+  } catch (error) {
+    console.error('獲取訂單項目失敗:', error);
+    throw new Error('獲取訂單項目失敗，請稍後再試');
+  }
+};
+
+/**
+ * 創建訂單項目
+ * @param orderId 訂單ID
+ * @param params 訂單項目參數
+ * @param userId 用戶ID
+ * @param userName 用戶名稱
+ */
+export const createOrderItem = async (
+  orderId: string,
+  params: CreateOrderItemParams,
+  userId: string,
+  userName: string
+): Promise<string> => {
+  try {
+    // 計算小計金額
+    const subtotal = params.quantity * params.unitPrice;
+    
+    const itemData = {
+      ...params,
+      userId,
+      userName,
+      subtotal,
+      isPaid: false,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    };
+    
+    // 添加到訂單項目子集合
+    const docRef = await addDoc(
+      collection(db, 'orders', orderId, 'order_items'),
+      itemData
+    );
+    
+    // 更新訂單總金額
+    const orderRef = doc(db, 'orders', orderId);
+    const orderSnap = await getDoc(orderRef);
+    
+    if (orderSnap.exists()) {
+      const orderData = orderSnap.data();
+      const currentTotal = orderData.totalAmount || 0;
+      
+      await updateDoc(orderRef, {
+        totalAmount: currentTotal + subtotal,
+        updatedAt: serverTimestamp()
+      });
+    }
+    
+    return docRef.id;
+  } catch (error) {
+    console.error('創建訂單項目失敗:', error);
+    throw new Error('創建訂單項目失敗，請稍後再試');
+  }
+};
+
+/**
+ * 刪除訂單項目
+ * @param orderId 訂單ID
+ * @param itemId 項目ID
+ */
+export const deleteOrderItem = async (orderId: string, itemId: string): Promise<void> => {
+  try {
+    // 先獲取訂單項目，以便更新訂單總金額
+    const itemRef = doc(db, 'orders', orderId, 'order_items', itemId);
+    const itemSnap = await getDoc(itemRef);
+    
+    if (itemSnap.exists()) {
+      const itemData = itemSnap.data();
+      const subtotal = itemData.subtotal || 0;
+      
+      // 刪除訂單項目
+      await deleteDoc(itemRef);
+      
+      // 更新訂單總金額
+      const orderRef = doc(db, 'orders', orderId);
+      const orderSnap = await getDoc(orderRef);
+      
+      if (orderSnap.exists()) {
+        const orderData = orderSnap.data();
+        const currentTotal = orderData.totalAmount || 0;
+        
+        await updateDoc(orderRef, {
+          totalAmount: Math.max(0, currentTotal - subtotal),
+          updatedAt: serverTimestamp()
+        });
+      }
+    }
+  } catch (error) {
+    console.error('刪除訂單項目失敗:', error);
+    throw new Error('刪除訂單項目失敗，請稍後再試');
   }
 };

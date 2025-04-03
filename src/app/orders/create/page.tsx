@@ -127,8 +127,8 @@ const CreateOrderPage: React.FC = () => {
       // 創建訂單
       const orderId = await createOrder(orderParams, user.uid);
       
-      // 導航到訂單詳情頁面
-      router.push(`/orders/${orderId}`);
+      // 導航到訂單明細頁面
+      router.push(`/orders/create/details?id=${orderId}`);
     } catch (error) {
       console.error('建立訂單失敗:', error);
       setError('建立訂單失敗，請稍後再試');
