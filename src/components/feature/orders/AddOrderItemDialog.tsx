@@ -376,21 +376,21 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
                     <div className="flex items-center">
                       <button 
                         onClick={() => handleQuantityChange(item.id, -1)}
-                        className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200"
+                        className="w-6 h-6 flex items-center justify-center rounded-md bg-gray-100 hover:bg-gray-200"
                         disabled={getItemQuantity(item.id) <= 0}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                         </svg>
                       </button>
 
-                      <span className="mx-2 w-8 text-center">{getItemQuantity(item.id)}</span>
+                      <span className="mx-1 w-6 text-center text-sm">{getItemQuantity(item.id)}</span>
 
                       <button 
                         onClick={() => handleQuantityChange(item.id, 1)}
-                        className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200"
+                        className="w-6 h-6 flex items-center justify-center rounded-md bg-gray-100 hover:bg-gray-200"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                         </svg>
                       </button>
