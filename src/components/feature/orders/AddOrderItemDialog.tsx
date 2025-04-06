@@ -76,6 +76,7 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
   const [userName, setUserName] = useState<string>('');
   const [customUserName, setCustomUserName] = useState<string>('');
   const [isCustomUser, setIsCustomUser] = useState<boolean>(false);
+  const [itemNotes, setItemNotes] = useState<Record<string, string>>({});
   
   // 數據狀態
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -92,6 +93,7 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
       setCustomUserName('');
       setIsCustomUser(false);
       setItemQuantities({});
+      setItemNotes({});
       setActiveCategory('all');
       setError('');
     }
@@ -201,9 +203,22 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
     });
   };
   
+  // 處理備註變更
+  const handleNoteChange = (itemId: string, note: string) => {
+    setItemNotes(prev => ({
+      ...prev,
+      [itemId]: note
+    }));
+  };
+  
   // 獲取商品數量
   const getItemQuantity = (itemId: string): number => {
     return itemQuantities[itemId] || 0;
+  };
+  
+  // 獲取商品備註
+  const getItemNote = (itemId: string): string => {
+    return itemNotes[itemId] || '';
   };
   
   // 處理用戶選擇狀態變更
@@ -244,6 +259,7 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
         unitPrice: item.price,
         options: [],
         specialRequests: '',
+        notes: getItemNote(item.id)
       };
       
       // 創建訂單項目
@@ -339,7 +355,8 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
         <div className="max-h-[400px] overflow-y-auto border border-gray-200 rounded-lg divide-y divide-gray-200">
           {filteredMenuItems.length > 0 ? (
             filteredMenuItems.map(item => (
-              <div key={item.id} className="p-3 flex items-center justify-between">
+              <div key={item.id} className="p-3 flex flex-col">
+                <div className="flex items-center justify-between">
                 {/* 商品名稱 */}
                 <div className="flex-shrink-0 min-w-[120px] max-w-[160px]">
                   <span className="font-medium text-gray-900 truncate block">{item.name}</span>
@@ -385,6 +402,19 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
                 >
                   加入
                 </Button>
+                </div>
+                
+                {/* 備註輸入框，只在數量大於0時顯示 */}
+                {getItemQuantity(item.id) > 0 && (
+                  <div className="mt-2 ml-2">
+                    <Input
+                      placeholder="請輸入備註（如：不要辣、去蔥等）"
+                      value={getItemNote(item.id)}
+                      onChange={(e) => handleNoteChange(item.id, e.target.value)}
+                      className="text-sm"
+                    />
+                  </div>
+                )}
               </div>
             ))
           ) : (

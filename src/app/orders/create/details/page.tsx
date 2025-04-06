@@ -242,8 +242,13 @@ const OrderDetailsPage: React.FC = () => {
                 {orderItems.length > 0 ? (
                   orderItems.map((item) => (
                     <tr key={item.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {item.menuItemName}
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                        <div>{item.menuItemName}</div>
+                        {item.notes && (
+                          <div className="text-xs italic text-gray-500 mt-1">
+                            備註：{item.notes}
+                          </div>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         NT$ {item.unitPrice}
