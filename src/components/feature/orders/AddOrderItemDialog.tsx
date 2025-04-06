@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Dialog from '@/components/ui/dialog/Dialog';
 import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
@@ -8,7 +8,7 @@ import Button from '@/components/ui/Button';
 import { MenuItem } from '@/type/restaurant';
 import { CreateOrderItemParams } from '@/type/order';
 import { useAuth } from '@/hooks/useAuth';
-import { getMenuItem, getMenuItems } from '@/services/menu';
+import { getMenuItems } from '@/services/menu';
 import { createOrderItem } from '@/services/order';
 
 interface AddOrderItemDialogProps {
@@ -17,6 +17,12 @@ interface AddOrderItemDialogProps {
   orderId: string;
   restaurantId: string;
   onItemAdded: () => void;
+}
+
+// 用於分類標籤的介面
+interface Category {
+  id: string;
+  name: string;
 }
 
 /**
@@ -37,27 +43,25 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
   // 表單狀態
   const [userId, setUserId] = useState<string>('');
   const [userName, setUserName] = useState<string>('');
-  const [menuItemId, setMenuItemId] = useState<string>('');
-  const [quantity, setQuantity] = useState<number>(1);
   const [customUserName, setCustomUserName] = useState<string>('');
   const [showCustomUserField, setShowCustomUserField] = useState<boolean>(false);
   
   // 數據狀態
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  const [activeCategory, setActiveCategory] = useState<string>('all');
+  const [itemQuantities, setItemQuantities] = useState<Record<string, number>>({});
   
   // 初始化表單狀態
   useEffect(() => {
     if (show && currentUser) {
       setUserId(currentUser.uid);
       setUserName(userProfile?.displayName || currentUser.displayName || '');
-      setQuantity(1);
-      setMenuItemId('');
       setCustomUserName('');
       setShowCustomUserField(false);
-      setSelectedMenuItem(null);
+      setItemQuantities({});
+      setActiveCategory('all');
       setError('');
     }
   }, [show, currentUser, userProfile]);
@@ -95,33 +99,54 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
     fetchMenuItems();
   }, [show, restaurantId]);
   
-  // 獲取選中的菜單項目詳情
-  useEffect(() => {
-    const fetchMenuItem = async () => {
-      if (menuItemId) {
-        try {
-          const item = await getMenuItem(menuItemId);
-          setSelectedMenuItem(item);
-        } catch (err) {
-          console.error('獲取菜單項目詳情失敗:', err);
-        }
-      } else {
-        setSelectedMenuItem(null);
-      }
-    };
+  // 從菜單項目中提取分類
+  const categories = useMemo<Category[]>(() => {
+    // 創建一個集合來存儲唯一的分類ID
+    const categoryMap = new Map<string, Category>();
     
-    fetchMenuItem();
-  }, [menuItemId]);
+    // 添加「全部」分類
+    categoryMap.set('all', { id: 'all', name: '全部' });
+    
+    // 從菜單項目中提取分類
+    menuItems.forEach(item => {
+      if (item.categoryId && !categoryMap.has(item.categoryId)) {
+        // 這裡假設分類名稱未知，使用「分類 X」作為預設名稱
+        // 實際應用中，應該從資料庫獲取分類名稱
+        categoryMap.set(item.categoryId, { 
+          id: item.categoryId, 
+          name: `分類 ${categoryMap.size}` 
+        });
+      }
+    });
+    
+    // 如果沒有分類，添加一個默認分類
+    if (categoryMap.size === 1) {
+      categoryMap.set('default', { id: 'default', name: '菜單' });
+    }
+    
+    return Array.from(categoryMap.values());
+  }, [menuItems]);
+  
+  // 過濾顯示的菜單項目
+  const filteredMenuItems = useMemo(() => {
+    if (activeCategory === 'all') {
+      return menuItems;
+    }
+    return menuItems.filter(item => item.categoryId === activeCategory);
+  }, [menuItems, activeCategory]);
   
   // 處理數量變更
-  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Math.max(1, parseInt(e.target.value) || 1);
-    setQuantity(value);
+  const handleQuantityChange = (itemId: string, delta: number) => {
+    setItemQuantities(prev => {
+      const currentQuantity = prev[itemId] || 0;
+      const newQuantity = Math.max(0, currentQuantity + delta);
+      return { ...prev, [itemId]: newQuantity };
+    });
   };
   
-  // 處理菜單項目選擇
-  const handleMenuItemChange = (value: string) => {
-    setMenuItemId(value);
+  // 獲取商品數量
+  const getItemQuantity = (itemId: string): number => {
+    return itemQuantities[itemId] || 0;
   };
   
   // 處理用戶選擇
@@ -136,26 +161,17 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
     }
   };
   
-  // 處理提交
-  const handleSubmit = async () => {
-    // 驗證表單
-    if (!menuItemId) {
-      setError('請選擇商品');
-      return;
-    }
-    
+  // 處理加入商品
+  const handleAddItem = async (item: MenuItem) => {
+    // 驗證
     if (userId === 'custom' && !customUserName.trim()) {
       setError('請輸入訂購人名稱');
       return;
     }
     
-    if (quantity <= 0) {
+    const itemQuantity = getItemQuantity(item.id);
+    if (itemQuantity <= 0) {
       setError('數量必須大於 0');
-      return;
-    }
-    
-    if (!selectedMenuItem) {
-      setError('無法獲取商品資訊');
       return;
     }
     
@@ -164,10 +180,10 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
       
       // 準備訂單項目資料
       const orderItemParams: CreateOrderItemParams = {
-        menuItemId,
-        menuItemName: selectedMenuItem.name,
-        quantity,
-        unitPrice: selectedMenuItem.price,
+        menuItemId: item.id,
+        menuItemName: item.name,
+        quantity: itemQuantity,
+        unitPrice: item.price,
         options: [],
         specialRequests: '',
       };
@@ -180,9 +196,14 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
         userId === 'custom' ? customUserName : userName
       );
       
+      // 重置該商品的數量
+      setItemQuantities(prev => ({
+        ...prev,
+        [item.id]: 0
+      }));
+      
       setIsLoading(false);
       onItemAdded();
-      onClose();
     } catch (err) {
       console.error('新增訂單項目失敗:', err);
       setError('新增訂單項目失敗，請稍後再試');
@@ -190,22 +211,11 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
     }
   };
   
-  // 計算小計金額
-  const calculateSubtotal = (): number => {
-    if (selectedMenuItem) {
-      return selectedMenuItem.price * quantity;
-    }
-    return 0;
-  };
-  
   return (
     <Dialog
       show={show}
       title="新增商品"
       onClose={onClose}
-      primaryButtonText="新增"
-      onPrimaryButtonClick={handleSubmit}
-      secondaryButtonText="取消"
       width="md"
       showFooter={false}
     >
@@ -246,71 +256,90 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
           </div>
         )}
         
-        {/* 商品選擇 */}
-        <div>
-          <Select
-            label="選擇商品"
-            placeholder="請選擇商品"
-            options={menuItems.map(item => ({
-              value: item.id,
-              label: `${item.name} (NT$ ${item.price})`
-            }))}
-            value={menuItemId}
-            onChange={handleMenuItemChange}
-            disabled={isLoading || menuItems.length === 0}
-            helpText={menuItems.length === 0 && !error ? '目前沒有可用的商品' : undefined}
-          />
-        </div>
-        
-        {/* 數量輸入 */}
-        <div>
-          <Input
-            label="數量"
-            type="number"
-            min="1"
-            value={quantity.toString()}
-            onChange={handleQuantityChange}
-            disabled={isLoading || !menuItemId}
-          />
-        </div>
-        
-        {/* 小計顯示 */}
-        {selectedMenuItem && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <div className="flex justify-between">
-              <span className="font-medium">單價:</span>
-              <span>NT$ {selectedMenuItem.price}</span>
-            </div>
-            <div className="flex justify-between mt-2">
-              <span className="font-medium">數量:</span>
-              <span>{quantity}</span>
-            </div>
-            <div className="flex justify-between mt-2 text-lg font-bold">
-              <span>小計金額:</span>
-              <span>NT$ {calculateSubtotal()}</span>
-            </div>
+        {/* 分類標籤 */}
+        <div className="mt-4">
+          <div className="flex overflow-x-auto py-2 space-x-2 mb-2">
+            {categories.map(category => (
+              <button
+                key={category.id}
+                onClick={() => setActiveCategory(category.id)}
+                className={`px-3 py-1 rounded-full text-sm whitespace-nowrap ${activeCategory === category.id
+                  ? 'bg-green-500 text-white'
+                  : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}
+              >
+                {category.name}
+              </button>
+            ))}
           </div>
-        )}
+        </div>
+
+        {/* 商品列表 */}
+        <div className="max-h-[400px] overflow-y-auto border border-gray-200 rounded-lg divide-y divide-gray-200">
+          {filteredMenuItems.length > 0 ? (
+            filteredMenuItems.map(item => (
+              <div key={item.id} className="p-3 flex items-center justify-between">
+                {/* 商品名稱 */}
+                <div className="flex-shrink-0 min-w-[120px] max-w-[160px]">
+                  <span className="font-medium text-gray-900 truncate block">{item.name}</span>
+                </div>
+                
+                {/* 價格 */}
+                <div className="flex-shrink-0 w-20 text-right">
+                  <span className="text-gray-600">NT$ {item.price}</span>
+                </div>
+                
+                {/* 數量控制 */}
+                <div className="flex items-center">
+                  <button 
+                    onClick={() => handleQuantityChange(item.id, -1)}
+                    className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200"
+                    disabled={getItemQuantity(item.id) <= 0}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                    </svg>
+                  </button>
+
+                  <span className="mx-2 w-6 text-center text-sm">{getItemQuantity(item.id)}</span>
+
+                  <button 
+                    onClick={() => handleQuantityChange(item.id, 1)}
+                    className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                  </button>
+                </div>
+                
+                {/* 加入按鈕 */}
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="sm"
+                  className="px-2 py-1 text-xs"
+                  onClick={() => handleAddItem(item)}
+                  disabled={getItemQuantity(item.id) <= 0 || isLoading}
+                >
+                  加入
+                </Button>
+              </div>
+            ))
+          ) : (
+            <div className="p-6 text-center text-gray-500">
+              {isLoading ? '載入商品中...' : '此分類沒有可用的商品'}
+            </div>
+          )}
+        </div>
         
-        {/* 按鈕區域 */}
-        <div className="flex justify-end gap-2 pt-4 mt-4 border-t border-gray-200">
+        {/* 底部按鈕 */}
+        <div className="flex justify-end pt-4 mt-4 border-t border-gray-200">
           <Button
             type="button"
             variant="secondary"
             onClick={onClose}
-            disabled={isLoading}
           >
-            取消
-          </Button>
-          
-          <Button
-            type="button"
-            variant="primary"
-            onClick={handleSubmit}
-            isLoading={isLoading}
-            disabled={!menuItemId || quantity <= 0 || (userId === 'custom' && !customUserName.trim())}
-          >
-            新增
+            關閉
           </Button>
         </div>
       </div>
