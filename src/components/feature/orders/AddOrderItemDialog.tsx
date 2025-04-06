@@ -3,13 +3,44 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Dialog from '@/components/ui/dialog/Dialog';
 import Input from '@/components/ui/Input';
-import Select from '@/components/ui/Select';
 import Button from '@/components/ui/Button';
 import { MenuItem } from '@/type/restaurant';
 import { CreateOrderItemParams } from '@/type/order';
 import { useAuth } from '@/hooks/useAuth';
 import { getMenuItems } from '@/services/menu';
 import { createOrderItem } from '@/services/order';
+
+// 專為這個對話框創建的滑動開關組件
+interface ToggleSwitchProps {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  label?: string;
+  disabled?: boolean;
+}
+
+const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
+  checked,
+  onChange,
+  label,
+  disabled = false
+}) => {
+  return (
+    <label className="flex items-center cursor-pointer">
+      <div className="relative">
+        <input
+          type="checkbox"
+          className="sr-only"
+          checked={checked}
+          onChange={e => onChange(e.target.checked)}
+          disabled={disabled}
+        />
+        <div className={`block w-10 h-6 rounded-full ${checked ? 'bg-green-500' : 'bg-gray-300'} ${disabled ? 'opacity-50' : ''}`}></div>
+        <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-200 ease-in-out ${checked ? 'transform translate-x-4' : ''} ${disabled ? 'opacity-80' : ''}`}></div>
+      </div>
+      {label && <span className="ml-3 text-gray-700">{label}</span>}
+    </label>
+  );
+};
 
 interface AddOrderItemDialogProps {
   show: boolean;
@@ -44,7 +75,7 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
   const [userId, setUserId] = useState<string>('');
   const [userName, setUserName] = useState<string>('');
   const [customUserName, setCustomUserName] = useState<string>('');
-  const [showCustomUserField, setShowCustomUserField] = useState<boolean>(false);
+  const [isCustomUser, setIsCustomUser] = useState<boolean>(false);
   
   // 數據狀態
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -59,7 +90,7 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
       setUserId(currentUser.uid);
       setUserName(userProfile?.displayName || currentUser.displayName || '');
       setCustomUserName('');
-      setShowCustomUserField(false);
+      setIsCustomUser(false);
       setItemQuantities({});
       setActiveCategory('all');
       setError('');
@@ -108,14 +139,27 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
     categoryMap.set('all', { id: 'all', name: '全部' });
     
     // 從菜單項目中提取分類
+    const tagSet = new Set<string>();
+    
     menuItems.forEach(item => {
+      // 收集所有的標籤
+      if (item.tags && item.tags.length > 0) {
+        item.tags.forEach(tag => tagSet.add(tag));
+      }
+      
+      // 如果有分類 ID，也收集
       if (item.categoryId && !categoryMap.has(item.categoryId)) {
-        // 這裡假設分類名稱未知，使用「分類 X」作為預設名稱
-        // 實際應用中，應該從資料庫獲取分類名稱
         categoryMap.set(item.categoryId, { 
           id: item.categoryId, 
           name: `分類 ${categoryMap.size}` 
         });
+      }
+    });
+    
+    // 將標籤也加入分類中
+    tagSet.forEach(tag => {
+      if (!categoryMap.has(tag)) {
+        categoryMap.set(tag, { id: tag, name: tag });
       }
     });
     
@@ -132,7 +176,20 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
     if (activeCategory === 'all') {
       return menuItems;
     }
-    return menuItems.filter(item => item.categoryId === activeCategory);
+    
+    return menuItems.filter(item => {
+      // 檢查分類 ID 是否符合
+      if (item.categoryId === activeCategory) {
+        return true;
+      }
+      
+      // 檢查標籤是否包含選中的分類
+      if (item.tags && item.tags.includes(activeCategory)) {
+        return true;
+      }
+      
+      return false;
+    });
   }, [menuItems, activeCategory]);
   
   // 處理數量變更
@@ -149,22 +206,23 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
     return itemQuantities[itemId] || 0;
   };
   
-  // 處理用戶選擇
-  const handleUserChange = (value: string) => {
-    if (value === 'custom') {
-      setShowCustomUserField(true);
-      setUserId('custom');
-    } else {
-      setShowCustomUserField(false);
-      setUserId(value);
+  // 處理用戶選擇狀態變更
+  const handleUserToggleChange = (checked: boolean) => {
+    setIsCustomUser(checked);
+    if (!checked) {
+      // 切換回我自己
+      setUserId(currentUser?.uid || '');
       setUserName(userProfile?.displayName || currentUser?.displayName || '');
+    } else {
+      // 切換為其他人員
+      setUserId('custom');
     }
   };
   
   // 處理加入商品
   const handleAddItem = async (item: MenuItem) => {
     // 驗證
-    if (userId === 'custom' && !customUserName.trim()) {
+    if (isCustomUser && !customUserName.trim()) {
       setError('請輸入訂購人名稱');
       return;
     }
@@ -192,8 +250,8 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
       await createOrderItem(
         orderId,
         orderItemParams,
-        userId === 'custom' ? 'custom' : userId,
-        userId === 'custom' ? customUserName : userName
+        isCustomUser ? 'custom' : userId,
+        isCustomUser ? customUserName : userName
       );
       
       // 重置該商品的數量
@@ -228,33 +286,37 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
       
       {/* 表單內容 */}
       <div className="space-y-4">
-        {/* 訂購人選擇 */}
-        <div>
-          <Select
-            label="訂購人"
-            placeholder="請選擇訂購人"
-            options={[
-              { value: currentUser?.uid || '', label: userProfile?.displayName || currentUser?.displayName || '我自己' },
-              { value: 'custom', label: '其他人員' }
-            ]}
-            value={userId}
-            onChange={handleUserChange}
-            disabled={isLoading}
-          />
-        </div>
-        
-        {/* 自訂訂購人名稱 */}
-        {showCustomUserField && (
-          <div>
-            <Input
-              label="訂購人名稱"
-              placeholder="請輸入訂購人名稱"
-              value={customUserName}
-              onChange={(e) => setCustomUserName(e.target.value)}
+        {/* 訂購人選擇 - 滑動開關 */}
+        <div className="mb-4">
+          <div className="flex justify-between items-center">
+            <label className="block text-sm font-medium text-gray-700">訂購人</label>
+            <ToggleSwitch 
+              checked={isCustomUser}
+              onChange={handleUserToggleChange}
+              label={isCustomUser ? '其他人員' : '我自己'}
               disabled={isLoading}
             />
           </div>
-        )}
+          
+          {/* 顯示當前用戶名稱 */}
+          {!isCustomUser && (
+            <div className="mt-2 px-3 py-2 bg-gray-50 rounded-md text-gray-700">
+              {userName || '未設定名稱'}
+            </div>
+          )}
+
+          {/* 自訂訂購人名稱 */}
+          {isCustomUser && (
+            <div className="mt-2">
+              <Input
+                placeholder="請輸入訂購人名稱"
+                value={customUserName}
+                onChange={(e) => setCustomUserName(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+          )}
+        </div>
         
         {/* 分類標籤 */}
         <div className="mt-4">
