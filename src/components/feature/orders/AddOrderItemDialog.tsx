@@ -356,65 +356,69 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
           {filteredMenuItems.length > 0 ? (
             filteredMenuItems.map(item => (
               <div key={item.id} className="p-3 flex flex-col">
-                <div className="flex items-center justify-between">
-                {/* 商品名稱 */}
-                <div className="flex-shrink-0 min-w-[120px] max-w-[160px]">
-                  <span className="font-medium text-gray-900 truncate block">{item.name}</span>
-                </div>
-                
-                {/* 價格 */}
-                <div className="flex-shrink-0 w-20 text-right">
-                  <span className="text-gray-600">NT$ {item.price}</span>
-                </div>
-                
-                {/* 數量控制 */}
-                <div className="flex items-center">
-                  <button 
-                    onClick={() => handleQuantityChange(item.id, -1)}
-                    className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200"
-                    disabled={getItemQuantity(item.id) <= 0}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-                    </svg>
-                  </button>
-
-                  <span className="mx-2 w-6 text-center text-sm">{getItemQuantity(item.id)}</span>
-
-                  <button 
-                    onClick={() => handleQuantityChange(item.id, 1)}
-                    className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                  </button>
-                </div>
-                
-                {/* 加入按鈕 */}
-                <Button
-                  type="button"
-                  variant="primary"
-                  size="sm"
-                  className="px-2 py-1 text-xs"
-                  onClick={() => handleAddItem(item)}
-                  disabled={getItemQuantity(item.id) <= 0 || isLoading}
-                >
-                  加入
-                </Button>
-                </div>
-                
-                {/* 備註輸入框，只在數量大於0時顯示 */}
-                {getItemQuantity(item.id) > 0 && (
-                  <div className="mt-2 ml-2">
-                    <Input
-                      placeholder="請輸入備註（如：不要辣、去蔥等）"
-                      value={getItemNote(item.id)}
-                      onChange={(e) => handleNoteChange(item.id, e.target.value)}
-                      className="text-sm"
-                    />
+                {/* 上層：商品名稱和價格 */}
+                <div className="flex items-center justify-between mb-2">
+                  {/* 商品名稱 */}
+                  <div className="flex-grow">
+                    <span className="font-medium text-gray-900 truncate block">{item.name}</span>
                   </div>
-                )}
+                  
+                  {/* 價格 */}
+                  <div className="flex-shrink-0 text-right">
+                    <span className="text-gray-600 font-medium">NT${item.price}</span>
+                  </div>
+                </div>
+                
+                {/* 下層：數量控制、備註和加入按鈕 */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2 flex-grow">
+                    {/* 數量控制 */}
+                    <div className="flex items-center">
+                      <button 
+                        onClick={() => handleQuantityChange(item.id, -1)}
+                        className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200"
+                        disabled={getItemQuantity(item.id) <= 0}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                        </svg>
+                      </button>
+
+                      <span className="mx-2 w-8 text-center">{getItemQuantity(item.id)}</span>
+
+                      <button 
+                        onClick={() => handleQuantityChange(item.id, 1)}
+                        className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                      </button>
+                    </div>
+                    
+                    {/* 備註輸入框，放在數量控制後面 */}
+                    <div className="flex-grow">
+                      <Input
+                        placeholder="請輸入備註（如：不要辣、去蔥等）"
+                        value={getItemNote(item.id)}
+                        onChange={(e) => handleNoteChange(item.id, e.target.value)}
+                        className="text-sm h-8"
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* 加入按鈕 */}
+                  <Button
+                    type="button"
+                    variant="primary"
+                    size="sm"
+                    className="ml-2 px-3 py-1"
+                    onClick={() => handleAddItem(item)}
+                    disabled={getItemQuantity(item.id) <= 0 || isLoading}
+                  >
+                    加入
+                  </Button>
+                </div>
               </div>
             ))
           ) : (
