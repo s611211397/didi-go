@@ -112,14 +112,18 @@ const CreateOrderPage: React.FC = () => {
     if (!user) return;
     
     try {
+      // 獲取選中的餐廳
+      const selectedRestaurant = restaurants.find(r => r.id === data.restaurantId);
+      
       // 將表單資料轉換為CreateOrderParams格式
       const orderParams: CreateOrderParams = {
         title: data.title,
-        description: `從 ${restaurants.find(r => r.id === data.restaurantId)?.name || '餐廳'} 訂購`,
+        description: `從 ${selectedRestaurant?.name || '餐廳'} 訂購`,
         deadlineTime: data.deadlineTime,
         estimatedDeliveryTime: data.deliveryTime,
         tags: [
-          restaurants.find(r => r.id === data.restaurantId)?.name || '餐廳'
+          selectedRestaurant?.name || '餐廳',
+          data.restaurantId // 存儲餐廳ID作為第二個標籤
         ]
       };
       

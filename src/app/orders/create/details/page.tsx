@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import Button from '@/components/ui/Button';
 import MobileNavBar from '@/components/layout/MobileNavBar';
+import AddOrderItemDialog from '@/components/feature/orders/AddOrderItemDialog';
 import { getOrder, getOrderItems, deleteOrderItem } from '@/services/order';
 import { Order, OrderItem } from '@/type/order';
 import { Timestamp } from '@/type/common';
@@ -24,6 +25,7 @@ const OrderDetailsPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
   const [mounted, setMounted] = useState<boolean>(false);
+  const [showAddItemDialog, setShowAddItemDialog] = useState<boolean>(false);
   
   // 確保組件已掛載，用於解決樣式閃爍問題
   useEffect(() => {
@@ -106,14 +108,24 @@ const OrderDetailsPage: React.FC = () => {
     }
   };
   
-  // 新增訂單項目 (導向到菜單頁面)
+  // 開啟新增商品對話框
   const handleAddItem = () => {
     if (order && orderId) {
-      // 假設可以從 order 的 tags 獲取餐廳 ID，或從 description 中提取
-      const restaurantId = order.tags?.[0] || '';
-      
-      // 導向到餐廳菜單頁面，並傳遞訂單 ID
-      router.push(`/restaurants/menu?restaurantId=${restaurantId}&orderId=${orderId}`);
+      setShowAddItemDialog(true);
+    }
+  };
+  
+  // 處理商品新增完成後的刷新
+  const handleItemAdded = async () => {
+    if (orderId) {
+      try {
+        // 重新獲取訂單項目
+        const items = await getOrderItems(orderId);
+        setOrderItems(items);
+      } catch (err) {
+        console.error('刷新訂單項目失敗:', err);
+        setError('無法刷新訂單項目，請稍後再試');
+      }
     }
   };
 
@@ -321,6 +333,17 @@ const OrderDetailsPage: React.FC = () => {
       
       {/* 底部導航區域 (手機版) */}
       <MobileNavBar />
+      
+      {/* 新增商品對話框 */}
+      {orderId && order && (
+        <AddOrderItemDialog
+          show={showAddItemDialog}
+          onClose={() => setShowAddItemDialog(false)}
+          orderId={orderId}
+          restaurantId={order.tags?.[1] || ''} /* 餐廳ID存儲在 tags 的第二個元素 */
+          onItemAdded={handleItemAdded}
+        />
+      )}
     </div>
   );
 };
