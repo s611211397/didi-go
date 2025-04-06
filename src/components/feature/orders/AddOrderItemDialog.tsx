@@ -369,55 +369,56 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
                   </div>
                 </div>
                 
-                {/* 下層：數量控制、備註和加入按鈕 */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2 flex-grow">
-                    {/* 數量控制 */}
-                    <div className="flex items-center">
+                {/* 下層：備註輸入框 + 數量控制 + 加入按鈕 */}
+                <div className="flex items-center gap-2 mt-2">
+                  {/* 備註輸入框，左側伸展但保留操作區空間 */}
+                  <div className="flex-grow">
+                    <Input
+                      placeholder="請輸入備註"
+                      value={getItemNote(item.id)}
+                      onChange={(e) => handleNoteChange(item.id, e.target.value)}
+                      className="text-sm h-8 w-full"
+                    />
+                  </div>
+                  
+                  {/* 數量控制與加入按鈕(分開顯示) */}
+                  <div className="flex-shrink-0 flex items-center gap-2">
+                    <div className="flex items-center border border-gray-200 rounded-md overflow-hidden">
                       <button 
                         onClick={() => handleQuantityChange(item.id, -1)}
-                        className="w-6 h-6 flex items-center justify-center rounded-md bg-gray-100 hover:bg-gray-200"
+                        className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors"
                         disabled={getItemQuantity(item.id) <= 0}
+                        aria-label="減少數量"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                         </svg>
                       </button>
 
-                      <span className="mx-1 w-6 text-center text-sm">{getItemQuantity(item.id)}</span>
+                      <span className="px-3 py-1 text-center min-w-8">{getItemQuantity(item.id)}</span>
 
                       <button 
                         onClick={() => handleQuantityChange(item.id, 1)}
-                        className="w-6 h-6 flex items-center justify-center rounded-md bg-gray-100 hover:bg-gray-200"
+                        className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors"
+                        aria-label="增加數量"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                         </svg>
                       </button>
                     </div>
                     
-                    {/* 備註輸入框，放在數量控制後面 */}
-                    <div className="flex-grow">
-                      <Input
-                        placeholder="請輸入備註"
-                        value={getItemNote(item.id)}
-                        onChange={(e) => handleNoteChange(item.id, e.target.value)}
-                        className="text-sm h-8"
-                      />
-                    </div>
+                    <Button
+                      type="button"
+                      variant="primary"
+                      size="sm"
+                      className="px-4 py-2 h-8 rounded-md"
+                      onClick={() => handleAddItem(item)}
+                      disabled={getItemQuantity(item.id) <= 0 || isLoading}
+                    >
+                      加入
+                    </Button>
                   </div>
-                  
-                  {/* 加入按鈕 */}
-                  <Button
-                    type="button"
-                    variant="primary"
-                    size="sm"
-                    className="ml-2 px-3 py-1"
-                    onClick={() => handleAddItem(item)}
-                    disabled={getItemQuantity(item.id) <= 0 || isLoading}
-                  >
-                    加入
-                  </Button>
                 </div>
               </div>
             ))
