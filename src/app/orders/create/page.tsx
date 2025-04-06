@@ -118,11 +118,15 @@ const CreateOrderPage: React.FC = () => {
         description: `從 ${restaurants.find(r => r.id === data.restaurantId)?.name || '餐廳'} 訂購`,
         deadlineTime: data.deadlineTime,
         estimatedDeliveryTime: data.deliveryTime,
-        notes: data.note || undefined,
         tags: [
           restaurants.find(r => r.id === data.restaurantId)?.name || '餐廳'
         ]
       };
+      
+      // 只有在備註有內容時才添加到參數中
+      if (data.note && data.note.trim() !== '') {
+        orderParams.notes = data.note;
+      }
       
       // 創建訂單
       const orderId = await createOrder(orderParams, user.uid);
