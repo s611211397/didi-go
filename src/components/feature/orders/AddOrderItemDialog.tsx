@@ -399,7 +399,7 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
                     {/* 備註輸入框，放在數量控制後面 */}
                     <div className="flex-grow">
                       <Input
-                        placeholder="請輸入備註（如：不要辣、去蔥等）"
+                        placeholder="請輸入備註"
                         value={getItemNote(item.id)}
                         onChange={(e) => handleNoteChange(item.id, e.target.value)}
                         className="text-sm h-8"
