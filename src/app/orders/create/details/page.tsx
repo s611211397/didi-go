@@ -29,7 +29,7 @@ const OrderDetailsPage: React.FC = () => {
   
   const [order, setOrder] = useState<Order | null>(null);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+
   const [error, setError] = useState<string>('');
   const [mounted, setMounted] = useState<boolean>(false);
   const [showAddItemDialog, setShowAddItemDialog] = useState<boolean>(false);
@@ -59,8 +59,6 @@ const OrderDetailsPage: React.FC = () => {
       if (!user || !orderId) return;
       
       try {
-        setIsLoading(true);
-        
         // 獲取訂單主資訊
         const orderData = await getOrder(orderId);
         
@@ -81,8 +79,6 @@ const OrderDetailsPage: React.FC = () => {
       } catch (err) {
         console.error('獲取訂單資訊失敗:', err);
         setError('無法獲取訂單資訊，請稍後再試');
-      } finally {
-        setIsLoading(false);
       }
     };
 
@@ -232,7 +228,7 @@ const OrderDetailsPage: React.FC = () => {
               </>
             ) : (
               <div className="py-4 text-center text-gray-500">
-                {isLoading ? '載入訂單資訊中...' : '無法顯示訂單資訊'}
+                無法顯示訂單資訊
               </div>
             )}
           </div>
