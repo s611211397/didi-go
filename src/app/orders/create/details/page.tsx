@@ -121,7 +121,12 @@ const OrderDetailsPage: React.FC = () => {
   // 開啟新增商品對話框
   const handleAddItem = () => {
     if (order && orderId) {
-      setShowAddItemDialog(true);
+      // 確保先關閉對話框，然後再重新開啟，以避免重複錄入導致的閃爍
+      setShowAddItemDialog(false);
+      // 使用setTimeout確保先關閉後再開啟，避免狀態更新不當
+      setTimeout(() => {
+        setShowAddItemDialog(true);
+      }, 10);
     }
   };
   

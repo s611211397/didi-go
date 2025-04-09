@@ -89,6 +89,11 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
   // 初始化表單狀態
   useEffect(() => {
     if (show && currentUser) {
+      // 當對話框即將顯示時，預先重設資料狀態
+      // 這對預防在先前的對話框付費後再開啟別的對話框有幫助
+      if (!isReady) {
+        setIsReady(false);
+      }
       setUserId(currentUser.uid);
       setUserName(userProfile?.displayName || currentUser.displayName || '');
       setCustomUserName('');
@@ -98,14 +103,15 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
       setActiveCategory('all');
       setError('');
     }
-  }, [show, currentUser, userProfile]);
+  }, [show, currentUser, userProfile, isReady]);
   
-  // 獲取餐廳菜單項目
+  // 獲取餐廳菜單項目 - 使用狀態跟蹤避免重複加載
   useEffect(() => {
+    // 重要: 只有在首次顯示或餐廳ID變更時才載入資料
     const fetchMenuItems = async () => {
-      if (show && restaurantId) {
+      // 如果對話框顯示且還未載入過或餐廳ID變化
+      if (show && restaurantId && !isReady) {
         try {
-          setIsReady(false);
           setIsLoading(true);
           setError('');
           
@@ -127,7 +133,7 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
           setIsLoading(false);
           setIsReady(true);
         }
-      } else if (show) {
+      } else if (show && !restaurantId) {
         // 如果沒有餐廳ID但彈窗已顯示
         setError('無法識別餐廳資訊，請回到訂單列表重新操作');
         setIsReady(true);
@@ -135,7 +141,7 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
     };
     
     fetchMenuItems();
-  }, [show, restaurantId]);
+  }, [show, restaurantId, isReady]);
   
   // 從菜單項目中提取分類
   const categories = useMemo<Category[]>(() => {
@@ -355,6 +361,7 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
           <div className="flex overflow-x-auto py-2 space-x-2 mb-2">
             {categories.map(category => (
               <button
+                type="button"
                 key={category.id}
                 onClick={() => setActiveCategory(category.id)}
                 className={`px-3 py-1 rounded-full text-sm whitespace-nowrap ${activeCategory === category.id
