@@ -41,7 +41,7 @@ const OrderDetailsPage: React.FC = () => {
     }
   });
 
-  // 確保組件已掛載，用於解決樣式閃爍問題
+  // 確保組件已掌載，用於解決樣式閃爍問題
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -136,12 +136,21 @@ const OrderDetailsPage: React.FC = () => {
         // 重新獲取訂單項目
         const items = await getOrderItems(orderId);
         setOrderItems(items);
+        // 顯示成功訊息
+        setError(''); // 清除任何存在的錯誤訊息
       } catch (err) {
         console.error('刷新訂單項目失敗:', err);
         setError('無法刷新訂單項目，請稍後再試');
       }
     }
   };
+
+  // 處理表單提交
+  const onSubmit = () => {
+    // 呼叫訂單提交函數
+    handleSubmitOrder();
+  };
+
 
   // 處理訂單提交
   const handleSubmitOrder = async () => {
@@ -151,6 +160,7 @@ const OrderDetailsPage: React.FC = () => {
       // 獨立更新訂單狀態
       await updateOrderStatus(orderId, OrderStatus.COMPLETED);
       
+      // 使用 alert 顯示成功訊息，這個訊息只應該在這裡顯示
       alert('訂單已提交成功！');
       router.push('/orders');
     } catch (err) {
@@ -164,13 +174,23 @@ const OrderDetailsPage: React.FC = () => {
     return null;
   }
 
-  // 如果尚未掛載完成，返回空以避免樣式閃爍
+  // 如果尚未掌載完成，返回空以避免樣式閃爍
   if (!mounted) {
     return <div className="min-h-screen bg-[#F7F7F7]"></div>;
   }
 
   return (
-    <form onSubmit={methods.handleSubmit(handleSubmitOrder)}>
+    <form onSubmit={(e) => {
+      // 判斷提交是否來自提交按鈕
+      // 如果是按鈕觸發的，正常提交
+      // 否則阻止提交，避免意外觸發
+      
+      // 取消默認提交行為，改為手動控制
+      e.preventDefault();
+      
+      // 正常提交流程
+      methods.handleSubmit(onSubmit)(e);
+    }}>
       <div className="min-h-screen bg-[#F7F7F7]">
         {/* 顯示錯誤信息 */}
         {error && (

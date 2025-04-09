@@ -201,11 +201,15 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
   
   // 處理數量變更
   const handleQuantityChange = (itemId: string, delta: number) => {
+    // 僅更新對應商品的數量狀態，不執行其他操作
     setItemQuantities(prev => {
       const currentQuantity = prev[itemId] || 0;
       const newQuantity = Math.max(0, currentQuantity + delta);
       return { ...prev, [itemId]: newQuantity };
     });
+    
+    // 清除可能存在的錯誤訊息
+    if (error) setError('');
   };
   
   // 處理備註變更
@@ -282,7 +286,11 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
       }));
       
       setIsLoading(false);
-      onItemAdded();
+      
+      // 通知父組件更新訂單項目
+      if (typeof onItemAdded === 'function') {
+        onItemAdded();
+      }
     } catch (err) {
       console.error('新增訂單項目失敗:', err);
       setError('新增訂單項目失敗，請稍後再試');
@@ -393,10 +401,17 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
                   <div className="flex-shrink-0 flex items-center gap-2">
                     <div className="flex items-center border border-gray-200 rounded-md overflow-hidden">
                       <button 
-                        onClick={() => handleQuantityChange(item.id, -1)}
+                        onClick={(e) => {
+                          e.preventDefault(); // 阻止默認行為
+                          e.stopPropagation(); // 阻止事件冒泡
+                          if (getItemQuantity(item.id) > 0) {
+                            handleQuantityChange(item.id, -1);
+                          }
+                        }}
                         className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors"
                         disabled={getItemQuantity(item.id) <= 0}
                         aria-label="減少數量"
+                        type="button"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
@@ -406,9 +421,14 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
                       <span className="px-3 py-1 text-center min-w-8">{getItemQuantity(item.id)}</span>
 
                       <button 
-                        onClick={() => handleQuantityChange(item.id, 1)}
+                        onClick={(e) => {
+                          e.preventDefault(); // 阻止默認行為
+                          e.stopPropagation(); // 阻止事件冒泡
+                          handleQuantityChange(item.id, 1);
+                        }}
                         className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors"
                         aria-label="增加數量"
+                        type="button"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -421,7 +441,11 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
                       variant="primary"
                       size="sm"
                       className="px-4 py-2 h-8 rounded-md"
-                      onClick={() => handleAddItem(item)}
+                      onClick={(e) => {
+                        e.preventDefault(); // 防止事件冒泡和默認行為
+                        e.stopPropagation(); // 阻止事件冒泡
+                        handleAddItem(item);
+                      }}
                       disabled={getItemQuantity(item.id) <= 0 || isLoading}
                     >
                       加入
