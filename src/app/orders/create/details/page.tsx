@@ -2,13 +2,22 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useForm } from 'react-hook-form';
 import { useAuth } from '@/hooks/useAuth';
 import Button from '@/components/ui/Button';
 import MobileNavBar from '@/components/layout/MobileNavBar';
 import AddOrderItemDialog from '@/components/feature/orders/AddOrderItemDialog';
-import { getOrder, getOrderItems, deleteOrderItem } from '@/services/order';
+import OrderItemsTable from '@/components/feature/orders/OrderItemsTable';
+import { getOrder, getOrderItems, deleteOrderItem, updateOrder, updateOrderStatus } from '@/services/order';
 import { Order, OrderItem } from '@/type/order';
-import { Timestamp } from '@/type/common';
+import { Timestamp, OrderStatus } from '@/type/common';
+
+// 訂單表單值的類型定義
+interface OrderFormValues {
+  orderItems: OrderItem[];
+  notes?: string;
+  deliveryOption?: string;
+}
 
 /**
  * 訂單明細頁面元件
@@ -27,6 +36,15 @@ const OrderDetailsPage: React.FC = () => {
   const [mounted, setMounted] = useState<boolean>(false);
   const [showAddItemDialog, setShowAddItemDialog] = useState<boolean>(false);
   
+  // 使用 react-hook-form
+  const methods = useForm<OrderFormValues>({
+    defaultValues: {
+      orderItems: [],
+      notes: '',
+      deliveryOption: '外送' // 預設值
+    }
+  });
+
   // 確保組件已掛載，用於解決樣式閃爍問題
   useEffect(() => {
     setMounted(true);
@@ -53,6 +71,13 @@ const OrderDetailsPage: React.FC = () => {
         if (orderData) {
           setOrder(orderData);
           
+          // 設置表單預設值
+          methods.reset({
+            orderItems: [],
+            notes: orderData.notes || '',
+            deliveryOption: orderData.deliveryOption || '外送'
+          });
+          
           // 獲取訂單項目
           const items = await getOrderItems(orderId);
           setOrderItems(items);
@@ -68,12 +93,7 @@ const OrderDetailsPage: React.FC = () => {
     };
 
     fetchOrderDetails();
-  }, [user, orderId]);
-
-  // 計算總金額
-  const calculateTotal = (): number => {
-    return orderItems.reduce((total, item) => total + item.subtotal, 0);
-  };
+  }, [user, orderId, methods]);
 
   // 類型守衛，檢查是否為 Timestamp 類型
   const isTimestamp = (value: unknown): value is Timestamp => {
@@ -129,6 +149,28 @@ const OrderDetailsPage: React.FC = () => {
     }
   };
 
+  // 處理訂單提交
+  const handleSubmitOrder = async (data: OrderFormValues) => {
+    if (!orderId || !order) return;
+    
+    try {
+      // 更新訂單資訊（備註和送達選項）
+      await updateOrder(orderId, {
+        notes: data.notes,
+        deliveryOption: data.deliveryOption,
+      });
+      
+      // 獨立更新訂單狀態
+      await updateOrderStatus(orderId, OrderStatus.COMPLETED);
+      
+      alert('訂單已提交成功！');
+      router.push('/orders');
+    } catch (err) {
+      console.error('提交訂單失敗:', err);
+      setError('提交訂單失敗，請稍後再試');
+    }
+  };
+
   // 如果正在載入用戶資訊，返回空
   if (loading || !user) {
     return null;
@@ -140,217 +182,124 @@ const OrderDetailsPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F7F7F7]">
-      {/* 顯示錯誤信息 */}
-      {error && (
-        <div className="container mx-auto px-4 mt-4">
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-            {error}
+    <form onSubmit={methods.handleSubmit(handleSubmitOrder)}>
+      <div className="min-h-screen bg-[#F7F7F7]">
+        {/* 顯示錯誤信息 */}
+        {error && (
+          <div className="container mx-auto px-4 mt-4">
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+              {error}
+            </div>
           </div>
-        </div>
-      )}
-      
-      {/* 主要內容區域 */}
-      <div className="container mx-auto px-4 py-6 pb-20 md:pb-8">
-        {/* 訂單標題區塊 */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">訂單明細</h1>
-          
-          {order ? (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="flex items-center">
-                  <span className="text-gray-600 mr-2">餐廳：</span>
-                  <span className="font-medium">
-                    {order.title.split('從')[1]?.split('訂購')[0].trim() || order.tags?.[0] || '未知餐廳'}
-                  </span>
-                </div>
-                <div className="flex items-center">
-                  <span className="text-gray-600 mr-2">截止時間：</span>
-                  <span className="font-medium">{formatDateTime(order.deadlineTime)}</span>
-                </div>
-                <div className="flex items-center">
-                  <span className="text-gray-600 mr-2">預計送達：</span>
-                  <span className="font-medium">
-                    {order.estimatedDeliveryTime 
-                      ? formatDateTime(order.estimatedDeliveryTime) 
-                      : '未設定'}
-                  </span>
-                </div>
-              </div>
-              
-              {/* 備註區塊 */}
-              {order.notes && order.notes.trim() !== '' && (
-                <div className="mt-4 pt-4 border-t border-gray-200">
-                  <div className="flex">
-                    <span className="text-gray-600 mr-2">備註：</span>
-                    <span className="text-gray-800">{order.notes}</span>
+        )}
+        
+        {/* 主要內容區域 */}
+        <div className="container mx-auto px-4 py-6 pb-20 md:pb-8">
+          {/* 訂單標題區塊 */}
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h1 className="text-2xl font-bold text-gray-800 mb-4">訂單明細</h1>
+            
+            {order ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="flex items-center">
+                    <span className="text-gray-600 mr-2">餐廳：</span>
+                    <span className="font-medium">
+                      {order.title.split('從')[1]?.split('訂購')[0].trim() || order.tags?.[0] || '未知餐廳'}
+                    </span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="text-gray-600 mr-2">截止時間：</span>
+                    <span className="font-medium">{formatDateTime(order.deadlineTime)}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="text-gray-600 mr-2">預計送達：</span>
+                    <span className="font-medium">
+                      {order.estimatedDeliveryTime 
+                        ? formatDateTime(order.estimatedDeliveryTime) 
+                        : '未設定'}
+                    </span>
                   </div>
                 </div>
-              )}
-            </>
-          ) : (
-            <div className="py-4 text-center text-gray-500">
-              {isLoading ? '載入訂單資訊中...' : '無法顯示訂單資訊'}
-            </div>
-          )}
-        </div>
+              </>
+            ) : (
+              <div className="py-4 text-center text-gray-500">
+                {isLoading ? '載入訂單資訊中...' : '無法顯示訂單資訊'}
+              </div>
+            )}
+          </div>
 
-        {/* 訂購商品按鈕 */}
-        <div className="mb-6">
-          <Button 
-            type="button" 
-            variant="primary"
-            leftIcon={
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
-              </svg>
-            }
-            onClick={handleAddItem}
-          >
-            新增商品
-          </Button>
-        </div>
+          {/* 訂購商品按鈕 */}
+          <div className="mb-6">
+            <Button 
+              type="button" 
+              variant="primary"
+              leftIcon={
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+                </svg>
+              }
+              onClick={handleAddItem}
+            >
+              新增商品
+            </Button>
+          </div>
 
-        {/* 訂單表格 */}
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    菜名
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    單價
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    數量
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    小計
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    訂購人
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    操作
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {orderItems.length > 0 ? (
-                  orderItems.map((item) => (
-                    <tr key={item.id}>
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                        <div>{item.menuItemName}</div>
-                        {item.notes && (
-                          <div className="text-xs italic text-gray-500 mt-1">
-                            備註：{item.notes}
-                          </div>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        NT$ {item.unitPrice}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {item.quantity}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        NT$ {item.subtotal}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {item.userName}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button
-                          onClick={() => handleDeleteItem(item.id)}
-                          className="text-[#EF4444] hover:text-[#DC2626] transition-colors"
-                          aria-label="刪除項目"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                          </svg>
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
-                      目前沒有訂單項目，請點擊上方「新增商品」按鈕開始訂購。
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-              {/* 總計金額行 */}
-              <tfoot className="bg-gray-50">
-                <tr>
-                  <td colSpan={3} className="px-6 py-4 text-right text-sm font-medium text-gray-900">
-                    總計金額：
-                  </td>
-                  <td colSpan={3} className="px-6 py-4 text-left text-base font-bold text-gray-900">
-                    NT$ {calculateTotal()}
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
+          {/* 訂單表格 */}
+          <OrderItemsTable
+            orderItems={orderItems}
+            onDeleteItem={handleDeleteItem}
+            emptyStateMessage="目前沒有訂單項目，請點擊上方「新增商品」按鈕開始訂購。"
+            notes={methods.watch('notes')}
+            deliveryOption={methods.watch('deliveryOption')}
+            onNotesChange={(value) => methods.setValue('notes', value)}
+            onDeliveryOptionChange={(value) => methods.setValue('deliveryOption', value)}
+          />
+
+          {/* 底部操作按鈕 (電腦版) */}
+          <div className="hidden md:flex justify-end mt-6 space-x-4">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => router.back()}
+            >
+              返回
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+            >
+              提交訂單
+            </Button>
+          </div>
+          
+          {/* 底部操作按鈕 (手機版) - 固定在畫面右下角 */}
+          <div className="fixed bottom-20 right-6 md:hidden z-10">
+            <Button 
+              type="submit" 
+              variant="primary"
+              className="shadow-lg rounded-full px-6 py-3"
+            >
+              提交訂單
+            </Button>
           </div>
         </div>
-
-        {/* 底部操作按鈕 (電腦版) */}
-        <div className="hidden md:flex justify-end mt-6 space-x-4">
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => router.back()}
-          >
-            返回
-          </Button>
-          <Button
-            type="button"
-            variant="primary"
-            onClick={() => {
-              // TODO: 實作訂單提交功能
-              alert('訂單已提交');
-              router.push('/orders');
-            }}
-          >
-            提交訂單
-          </Button>
-        </div>
         
-        {/* 底部操作按鈕 (手機版) - 固定在畫面右下角 */}
-        <div className="fixed bottom-20 right-6 md:hidden z-10">
-          <Button 
-            type="button" 
-            variant="primary"
-            className="shadow-lg rounded-full px-6 py-3" 
-            onClick={() => {
-              // TODO: 實作訂單提交功能
-              alert('訂單已提交');
-              router.push('/orders');
-            }}
-          >
-            提交訂單
-          </Button>
-        </div>
+        {/* 底部導航區域 (手機版) */}
+        <MobileNavBar />
+        
+        {/* 新增商品對話框 */}
+        {orderId && order && (
+          <AddOrderItemDialog
+            show={showAddItemDialog}
+            onClose={() => setShowAddItemDialog(false)}
+            orderId={orderId}
+            restaurantId={order.tags?.[1] || ''} /* 餐廳ID存儲在 tags 的第二個元素 */
+            onItemAdded={handleItemAdded}
+          />
+        )}
       </div>
-      
-      {/* 底部導航區域 (手機版) */}
-      <MobileNavBar />
-      
-      {/* 新增商品對話框 */}
-      {orderId && order && (
-        <AddOrderItemDialog
-          show={showAddItemDialog}
-          onClose={() => setShowAddItemDialog(false)}
-          orderId={orderId}
-          restaurantId={order.tags?.[1] || ''} /* 餐廳ID存儲在 tags 的第二個元素 */
-          onItemAdded={handleItemAdded}
-        />
-      )}
-    </div>
+    </form>
   );
 };
 

@@ -17,6 +17,7 @@ export interface Order extends BaseModel {
   paymentStatus: PaymentStatus;        // 付款狀態
   sharedToken?: string;                // 分享連結的令牌
   participantsCount?: number;          // 參與人數
+  deliveryOption?: string;                // 送達選項（外送/自取）
   notes?: string;                      // 備註
   isArchived: boolean;                 // 是否已歸檔
   tags?: string[];                     // 標籤
@@ -96,6 +97,7 @@ export interface CreateOrderParams {
   deadlineTime: Date | Timestamp;
   estimatedDeliveryTime?: Date | Timestamp;
   deliveryFee?: number;
+  deliveryOption?: string;
   notes?: string;
   tags?: string[];
 }
