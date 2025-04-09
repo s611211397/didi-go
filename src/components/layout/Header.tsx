@@ -16,7 +16,7 @@ const Header: React.FC = () => {
   // 檢查當前路徑是否匹配指定的路徑模式
   const isActivePath = (path: string): boolean => {
     if (path === '/orders/create') {
-      return pathname === path;
+      return pathname === path || pathname.startsWith('/orders/create/');
     } else if (path === '/orders/history') {
       return pathname === path || pathname.startsWith('/orders/history/');
     } else if (path === '/restaurants') {
@@ -61,9 +61,15 @@ const Header: React.FC = () => {
           
           {/* 導航連結 - 只在中等及以上屏幕顯示 */}
           <div className="hidden md:flex items-center space-x-6">
-            <Link 
-              href="/orders/create" 
-              className={`flex items-center transition-colors relative py-2 ${isActivePath('/orders/create') 
+            {/* 建立訂單: 在詳情頁面時不導航 */}
+            <div 
+              onClick={() => {
+                // 如果當前在訂單詳情頁面，則不進行導航
+                if (!pathname.startsWith('/orders/create/details')) {
+                  window.location.href = '/orders/create';
+                }
+              }}
+              className={`flex items-center transition-colors relative py-2 cursor-pointer ${isActivePath('/orders/create') 
                 ? 'text-[#10B981] font-medium after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[#10B981]' 
                 : 'text-[#484848] hover:text-[#10B981]'}`}
             >
@@ -74,7 +80,7 @@ const Header: React.FC = () => {
                 </svg>
               </span>
               建立訂單
-            </Link>
+            </div>
             
             <Link 
               href="/orders/history" 
