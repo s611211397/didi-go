@@ -83,7 +83,7 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
                     {!readOnly && (
                       <button
                         onClick={() => onDeleteItem(item.id)}
-                        className="text-[#EF4444] hover:text-[#DC2626] transition-colors"
+                        className="text-[#EF4444] hover:text-[#DC2626] transition-colors cursor-pointer"
                         aria-label="刪除項目"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
