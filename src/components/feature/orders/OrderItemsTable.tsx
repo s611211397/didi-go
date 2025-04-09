@@ -82,7 +82,11 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     {!readOnly && (
                       <button
-                        onClick={() => onDeleteItem(item.id)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          onDeleteItem(item.id);
+                        }}
                         className="text-[#EF4444] hover:text-[#DC2626] transition-colors cursor-pointer"
                         aria-label="刪除項目"
                       >
