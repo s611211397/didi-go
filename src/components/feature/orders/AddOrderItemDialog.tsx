@@ -81,6 +81,7 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
   // 數據狀態
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isReady, setIsReady] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [itemQuantities, setItemQuantities] = useState<Record<string, number>>({});
@@ -104,6 +105,7 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
     const fetchMenuItems = async () => {
       if (show && restaurantId) {
         try {
+          setIsReady(false);
           setIsLoading(true);
           setError('');
           
@@ -118,14 +120,17 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
           }
           
           setIsLoading(false);
+          setIsReady(true);
         } catch (err) {
           console.error('獲取菜單項目失敗:', err);
           setError('無法獲取菜單項目，請稍後再試');
           setIsLoading(false);
+          setIsReady(true);
         }
       } else if (show) {
         // 如果沒有餐廳ID但彈窗已顯示
         setError('無法識別餐廳資訊，請回到訂單列表重新操作');
+        setIsReady(true);
       }
     };
     
@@ -285,6 +290,9 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
     }
   };
   
+  // 只有在資料準備好後才顯示對話框
+  if (show && !isReady) return null;
+  
   return (
     <Dialog
       show={show}
@@ -424,7 +432,7 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
             ))
           ) : (
             <div className="p-6 text-center text-gray-500">
-              {isLoading ? '載入商品中...' : '此分類沒有可用的商品'}
+              此分類沒有可用的商品
             </div>
           )}
         </div>
