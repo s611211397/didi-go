@@ -8,15 +8,13 @@ import Button from '@/components/ui/Button';
 import MobileNavBar from '@/components/layout/MobileNavBar';
 import AddOrderItemDialog from '@/components/feature/orders/AddOrderItemDialog';
 import OrderItemsTable from '@/components/feature/orders/OrderItemsTable';
-import { getOrder, getOrderItems, deleteOrderItem, updateOrder, updateOrderStatus } from '@/services/order';
+import { getOrder, getOrderItems, deleteOrderItem, updateOrderStatus } from '@/services/order';
 import { Order, OrderItem } from '@/type/order';
 import { Timestamp, OrderStatus } from '@/type/common';
 
 // 訂單表單值的類型定義
 interface OrderFormValues {
   orderItems: OrderItem[];
-  notes?: string;
-  deliveryOption?: string;
 }
 
 /**
@@ -39,9 +37,7 @@ const OrderDetailsPage: React.FC = () => {
   // 使用 react-hook-form
   const methods = useForm<OrderFormValues>({
     defaultValues: {
-      orderItems: [],
-      notes: '',
-      deliveryOption: '外送' // 預設值
+      orderItems: []
     }
   });
 
@@ -73,9 +69,7 @@ const OrderDetailsPage: React.FC = () => {
           
           // 設置表單預設值
           methods.reset({
-            orderItems: [],
-            notes: orderData.notes || '',
-            deliveryOption: orderData.deliveryOption || '外送'
+            orderItems: []
           });
           
           // 獲取訂單項目
@@ -150,16 +144,10 @@ const OrderDetailsPage: React.FC = () => {
   };
 
   // 處理訂單提交
-  const handleSubmitOrder = async (data: OrderFormValues) => {
+  const handleSubmitOrder = async () => {
     if (!orderId || !order) return;
     
     try {
-      // 更新訂單資訊（備註和送達選項）
-      await updateOrder(orderId, {
-        notes: data.notes,
-        deliveryOption: data.deliveryOption,
-      });
-      
       // 獨立更新訂單狀態
       await updateOrderStatus(orderId, OrderStatus.COMPLETED);
       
@@ -250,11 +238,9 @@ const OrderDetailsPage: React.FC = () => {
             orderItems={orderItems}
             onDeleteItem={handleDeleteItem}
             emptyStateMessage="目前沒有訂單項目，請點擊上方「新增商品」按鈕開始訂購。"
-            notes={methods.watch('notes')}
-            deliveryOption={methods.watch('deliveryOption')}
-            onNotesChange={(value) => methods.setValue('notes', value)}
-            onDeliveryOptionChange={(value) => methods.setValue('deliveryOption', value)}
           />
+
+
 
           {/* 底部操作按鈕 (電腦版) */}
           <div className="hidden md:flex justify-end mt-6 space-x-4">
