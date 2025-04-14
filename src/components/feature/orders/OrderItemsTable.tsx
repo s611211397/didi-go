@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { OrderItem } from '@/type/order';
 
 interface OrderItemsTableProps {
@@ -11,9 +11,17 @@ interface OrderItemsTableProps {
   readOnly?: boolean;
 }
 
+interface ConsolidatedOrderItem extends Omit<OrderItem, 'id' | 'userId' | 'userName'> {
+  id: string; // 合併後的項目 ID
+  originalIds: string[]; // 原始項目 ID 列表，用於刪除操作
+  userNames: string[]; // 訂購人列表
+  userCount: number; // 訂購人數量
+}
+
 /**
  * 訂單項目表格元件
  * 用於顯示訂單的詳細項目，包含商品名稱、價格、數量等資訊
+ * 相同品名和相同備註的訂單會被合併顯示
  */
 const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
   orderItems,
@@ -22,12 +30,93 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
   className = "",
   readOnly = false,
 }) => {
+  // 追蹤展開的用戶列表
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
+
+  // 合併相同品名和相同備註的訂單項目
+  const consolidatedItems = useMemo(() => {
+    const itemMap = new Map<string, ConsolidatedOrderItem>();
+    
+    orderItems.forEach(item => {
+      // 創建用於合併的鍵值（品名+備註）
+      const key = `${item.menuItemName}|${item.notes || ''}`;
+      
+      if (itemMap.has(key)) {
+        // 如果已有相同項目，則更新數量和小計
+        const existingItem = itemMap.get(key)!;
+        existingItem.quantity += item.quantity;
+        existingItem.subtotal += item.subtotal;
+        existingItem.originalIds.push(item.id);
+        
+        // 如果是不同的用戶，則添加到用戶列表
+        if (!existingItem.userNames.includes(item.userName)) {
+          existingItem.userNames.push(item.userName);
+          existingItem.userCount += 1;
+        }
+      } else {
+        // 創建新的合併項目
+        itemMap.set(key, {
+          ...item,
+          originalIds: [item.id],
+          userNames: [item.userName],
+          userCount: 1,
+        });
+      }
+    });
+    
+    return Array.from(itemMap.values());
+  }, [orderItems]);
+
   // 計算總金額
   const calculateTotal = (): number => {
-    return orderItems.reduce((total, item) => total + item.subtotal, 0);
+    return consolidatedItems.reduce((total, item) => total + item.subtotal, 0);
   };
 
+  // 切換用戶列表展開狀態
+  const toggleExpand = (itemId: string) => {
+    setExpandedItems(prev => ({
+      ...prev,
+      [itemId]: !prev[itemId]
+    }));
+  };
 
+  // 處理刪除項目
+  const handleDeleteItem = (item: ConsolidatedOrderItem) => {
+    // 如果項目是合併的，則提供選項讓用戶選擇刪除哪一個
+    if (item.originalIds.length === 1) {
+      onDeleteItem(item.originalIds[0]);
+    } else {
+      // 對於合併項目，刪除所有相關項目
+      // 在實際應用中，可能需要提示用戶確認或選擇刪除特定訂購者的項目
+      item.originalIds.forEach(id => onDeleteItem(id));
+    }
+  };
+
+  // 格式化用戶名稱顯示
+  const formatUserDisplay = (item: ConsolidatedOrderItem) => {
+    if (item.userCount <= 2) {
+      return item.userNames.join(', ');
+    }
+    
+    const isExpanded = expandedItems[item.id];
+    if (isExpanded) {
+      return (
+        <div className="group relative">
+          <div className="cursor-pointer text-blue-500" onClick={() => toggleExpand(item.id)}>
+            {item.userNames.join(', ')} <span className="text-xs">▲</span>
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <div className="group relative">
+          <div className="cursor-pointer text-blue-500" onClick={() => toggleExpand(item.id)}>
+            {item.userNames[0]} <span className="text-sm text-gray-500">+{item.userCount - 1}人</span> <span className="text-xs">▼</span>
+          </div>
+        </div>
+      );
+    }
+  };
 
   return (
     <div className={`bg-white rounded-lg shadow-md overflow-hidden ${className}`}>
@@ -56,8 +145,8 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {orderItems.length > 0 ? (
-              orderItems.map((item) => (
+            {consolidatedItems.length > 0 ? (
+              consolidatedItems.map((item) => (
                 <tr key={item.id}>
                   <td className="px-6 py-4 text-sm font-medium text-gray-900">
                     <div>{item.menuItemName}</div>
@@ -76,8 +165,8 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     NT$ {item.subtotal}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {item.userName}
+                  <td className="px-6 py-4 text-sm text-gray-500">
+                    {formatUserDisplay(item)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     {!readOnly && (
@@ -85,7 +174,7 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          onDeleteItem(item.id);
+                          handleDeleteItem(item);
                         }}
                         className="text-[#EF4444] hover:text-[#DC2626] transition-colors cursor-pointer"
                         aria-label="刪除項目"
@@ -116,10 +205,6 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
                 NT$ {calculateTotal()}
               </td>
             </tr>
-            
-
-            
-
           </tfoot>
         </table>
       </div>
