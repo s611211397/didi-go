@@ -105,13 +105,22 @@ const OrderDetailsPage: React.FC = () => {
     });
   };
   
-  // 刪除訂單項目
-  const handleDeleteItem = async (itemId: string) => {
+  // 刪除訂單項目 - 優化後的版本支援批量刪除
+  const handleDeleteItem = async (itemId: string, itemsToDelete?: string[]) => {
     if (!orderId) return;
     
     try {
-      await deleteOrderItem(orderId, itemId);
-      setOrderItems(orderItems.filter(item => item.id !== itemId));
+      // 如果提供了多個 ID，就批量刪除
+      if (itemsToDelete && itemsToDelete.length > 0) {
+        // 刪除所有指定的項目
+        await Promise.all(itemsToDelete.map(id => deleteOrderItem(orderId, id)));
+        // 更新 UI，移除所有已刪除的項目
+        setOrderItems(orderItems.filter(item => !itemsToDelete.includes(item.id)));
+      } else {
+        // 引用現有的刪除邏輯處理單個項目
+        await deleteOrderItem(orderId, itemId);
+        setOrderItems(orderItems.filter(item => item.id !== itemId));
+      }
     } catch (error) {
       console.error('刪除訂單項目失敗:', error);
       setError('刪除訂單項目失敗，請稍後再試');
@@ -259,6 +268,7 @@ const OrderDetailsPage: React.FC = () => {
             orderItems={orderItems}
             onDeleteItem={handleDeleteItem}
             emptyStateMessage="目前沒有訂單項目，請點擊上方「新增商品」按鈕開始訂購。"
+            isOrderCreator={order?.organizerId === user?.uid}
           />
 
 

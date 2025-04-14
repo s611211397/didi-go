@@ -5,10 +5,11 @@ import { OrderItem } from '@/type/order';
 
 interface OrderItemsTableProps {
   orderItems: OrderItem[];
-  onDeleteItem: (itemId: string) => Promise<void> | void;
+  onDeleteItem: (itemId: string, itemsToDelete?: string[]) => Promise<void> | void;
   emptyStateMessage?: string;
   className?: string;
   readOnly?: boolean;
+  isOrderCreator?: boolean; // 添加是否為訂單創建者的屬性
 }
 
 interface ConsolidatedOrderItem extends Omit<OrderItem, 'id' | 'userId' | 'userName'> {
@@ -29,6 +30,7 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
   emptyStateMessage = "目前沒有訂單項目",
   className = "",
   readOnly = false,
+  isOrderCreator = false, // 默認非創建者
 }) => {
   // 追蹤展開的用戶列表
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
@@ -81,14 +83,24 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
   };
 
   // 處理刪除項目
-  const handleDeleteItem = (item: ConsolidatedOrderItem) => {
-    // 如果項目是合併的，則提供選項讓用戶選擇刪除哪一個
-    if (item.originalIds.length === 1) {
-      onDeleteItem(item.originalIds[0]);
-    } else {
-      // 對於合併項目，刪除所有相關項目
-      // 在實際應用中，可能需要提示用戶確認或選擇刪除特定訂購者的項目
-      item.originalIds.forEach(id => onDeleteItem(id));
+  const handleDeleteItem = async (item: ConsolidatedOrderItem) => {
+    try {
+      console.log('訂單創建者狀態:', isOrderCreator);
+      console.log('要刪除的項目 IDs:', item.originalIds);
+
+      // 如果是訂單創建者，一次刪除全部相同品名項目
+      if (isOrderCreator && item.originalIds.length > 0) {
+        // 使用第一個 ID 作為基礎 ID，並將其餘項目作為批量刪除列表
+        await onDeleteItem(item.originalIds[0], item.originalIds);
+        return;
+      }
+      
+      // 非訂單創建者只能刪除自己的項目
+      if (item.originalIds.length === 1) {
+        await onDeleteItem(item.originalIds[0]);
+      }
+    } catch (error) {
+      console.error('刪除項目時發生錯誤:', error);
     }
   };
 
