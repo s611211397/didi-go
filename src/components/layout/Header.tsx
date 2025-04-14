@@ -10,7 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
  * 顯示應用標題和用戶資訊
  */
 const Header: React.FC = () => {
-  const { currentUser, userProfile } = useAuth();
+  const { currentUser, userProfile, logout } = useAuth();
   const pathname = usePathname();
   
   // 檢查當前路徑是否匹配指定的路徑模式
@@ -112,11 +112,33 @@ const Header: React.FC = () => {
           </div>
         </div>
         
-        <div className="flex items-center gap-2 md:gap-4">
-          <span className="text-[#767676]">Hi, {displayName}</span>
-          {/* 用戶頭像 */}
-          <div className="w-10 h-10 rounded-full bg-[#10B981] text-white flex items-center justify-center">
-            {avatarInitial}
+        <div className="relative group">
+          <div className="flex items-center gap-2 md:gap-4 cursor-pointer">
+            <span className="text-[#767676] group-hover:text-[#10B981] transition-colors">Hi, {displayName}</span>
+            {/* 用戶頭像 */}
+            <div className="w-10 h-10 rounded-full bg-[#10B981] text-white flex items-center justify-center group-hover:bg-opacity-90 transition-colors">
+              {avatarInitial}
+            </div>
+          </div>
+            
+          {/* 下拉菜單 - 懸浮顯示 */}
+          <div 
+            className="absolute right-0 top-full mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:duration-500 cursor-pointer"
+          >
+            {/* 選入緩衝區 */}
+            <div className="absolute -top-2 left-0 right-0 h-4"></div>
+            <button 
+              onClick={async () => {
+                try {
+                  await logout();
+                } catch (error) {
+                  console.error('登出失敗:', error);
+                }
+              }}
+              className="block w-full text-left px-4 py-2 text-sm text-[#484848] hover:bg-gray-100 hover:text-[#10B981] transition-colors cursor-pointer"
+            >
+              登出
+            </button>
           </div>
         </div>
       </div>
