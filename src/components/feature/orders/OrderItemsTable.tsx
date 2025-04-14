@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { OrderItem } from '@/type/order';
 
 interface OrderItemsTableProps {
@@ -12,11 +12,19 @@ interface OrderItemsTableProps {
   isOrderCreator?: boolean; // 添加是否為訂單創建者的屬性
 }
 
+// 使用者訂購資訊的介面
+interface UserOrderInfo {
+  userName: string; // 訂購人名稱
+  quantity: number; // 訂購數量
+  originalId: string; // 原始訂單 ID
+}
+
 interface ConsolidatedOrderItem extends Omit<OrderItem, 'id' | 'userId' | 'userName'> {
   id: string; // 合併後的項目 ID
   originalIds: string[]; // 原始項目 ID 列表，用於刪除操作
   userNames: string[]; // 訂購人列表
   userCount: number; // 訂購人數量
+  userOrders: UserOrderInfo[]; // 每位使用者的訂購詳情
 }
 
 /**
@@ -32,8 +40,6 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
   readOnly = false,
   isOrderCreator = false, // 默認非創建者
 }) => {
-  // 追蹤展開的用戶列表
-  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
 
   // 合併相同品名和相同備註的訂單項目
   const consolidatedItems = useMemo(() => {
@@ -43,12 +49,20 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
       // 創建用於合併的鍵值（品名+備註）
       const key = `${item.menuItemName}|${item.notes || ''}`;
       
+      // 創建用戶訂購資訊
+      const userOrderInfo: UserOrderInfo = {
+        userName: item.userName,
+        quantity: item.quantity,
+        originalId: item.id
+      };
+      
       if (itemMap.has(key)) {
         // 如果已有相同項目，則更新數量和小計
         const existingItem = itemMap.get(key)!;
         existingItem.quantity += item.quantity;
         existingItem.subtotal += item.subtotal;
         existingItem.originalIds.push(item.id);
+        existingItem.userOrders.push(userOrderInfo);
         
         // 如果是不同的用戶，則添加到用戶列表
         if (!existingItem.userNames.includes(item.userName)) {
@@ -62,6 +76,7 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
           originalIds: [item.id],
           userNames: [item.userName],
           userCount: 1,
+          userOrders: [userOrderInfo]
         });
       }
     });
@@ -72,14 +87,6 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
   // 計算總金額
   const calculateTotal = (): number => {
     return consolidatedItems.reduce((total, item) => total + item.subtotal, 0);
-  };
-
-  // 切換用戶列表展開狀態
-  const toggleExpand = (itemId: string) => {
-    setExpandedItems(prev => ({
-      ...prev,
-      [itemId]: !prev[itemId]
-    }));
   };
 
   // 處理刪除項目
@@ -106,28 +113,48 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
 
   // 格式化用戶名稱顯示
   const formatUserDisplay = (item: ConsolidatedOrderItem) => {
-    if (item.userCount <= 2) {
-      return item.userNames.join(', ');
+    // 如果只有一個訂購人，直接顯示名稱
+    if (item.userCount === 1) {
+      return <div>{item.userNames[0]}</div>;
     }
     
-    const isExpanded = expandedItems[item.id];
-    if (isExpanded) {
-      return (
-        <div className="group relative">
-          <div className="cursor-pointer text-blue-500" onClick={() => toggleExpand(item.id)}>
-            {item.userNames.join(', ')} <span className="text-xs">▲</span>
+    // 多個訂購人時，顯示第一位訂購人 + 懸停顯示全部
+    return (
+      <div className="group relative inline-block">
+        <div className="cursor-help flex items-center">
+          <span className="font-medium">{item.userNames[0]}</span>
+          <span className="text-sm text-gray-500 ml-1 bg-gray-100 px-1.5 py-0.5 rounded-full">+{item.userCount - 1}人</span>
+          <span className="ml-1 text-blue-500 text-xs">▼</span>
+        </div>
+        
+        {/* 懸停時顯示的 tooltip - 新增網格區域來拖住滑鼠 */}
+        <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-opacity delay-75 duration-200 absolute z-10 left-0 mt-1">
+          {/* 網格區域，帶有全20px的padding以增加滑鼠懸停空間 */}
+          <div className="p-5 -mt-2 -mx-5">
+            <div className="w-64 p-3 bg-white border border-gray-200 rounded-md shadow-lg text-sm">
+              <div className="font-medium text-gray-700 pb-1 border-b border-gray-200 mb-2">所有訂購人 ({item.userCount} 人合計訂購 {item.quantity} 份)</div>
+              <ul className="space-y-2 max-h-48 overflow-y-auto">
+                {/* 使用 userOrders 資料結構約和訂購數量 */}
+                {Object.entries(
+                  // 計算每位使用者的總訂購數量
+                  item.userOrders.reduce((acc: Record<string, number>, order) => {
+                    acc[order.userName] = (acc[order.userName] || 0) + order.quantity;
+                    return acc;
+                  }, {})
+                )
+                .sort((a, b) => b[1] - a[1]) // 按數量降序排列
+                .map(([userName, quantity]) => (
+                  <li key={userName} className="flex justify-between items-center hover:bg-gray-50 px-1.5 py-1 rounded">
+                    <span className="text-gray-700">{userName}</span>
+                    <span className="text-gray-500 text-xs px-2 py-1 bg-gray-100 rounded-full">訂購 {quantity} 份</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
-      );
-    } else {
-      return (
-        <div className="group relative">
-          <div className="cursor-pointer text-blue-500" onClick={() => toggleExpand(item.id)}>
-            {item.userNames[0]} <span className="text-sm text-gray-500">+{item.userCount - 1}人</span> <span className="text-xs">▼</span>
-          </div>
-        </div>
-      );
-    }
+      </div>
+    );
   };
 
   return (
