@@ -215,23 +215,22 @@ const OrderDetailsPage: React.FC = () => {
         <div className="container mx-auto px-4 py-6 pb-20 md:pb-8">
           {/* 訂單標題區塊 */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h1 className="text-2xl font-bold text-gray-800 mb-4">訂單明細</h1>
             
             {order ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="flex items-center">
-                    <span className="text-gray-600 mr-2">餐廳：</span>
+                    <span className="text-lg text-gray-700 mr-2">餐廳：</span>
                     <span className="font-medium">
                       {order.title.split('從')[1]?.split('訂購')[0].trim() || order.tags?.[0] || '未知餐廳'}
                     </span>
                   </div>
                   <div className="flex items-center">
-                    <span className="text-gray-600 mr-2">截止時間：</span>
+                    <span className="text-lg text-gray-700 mr-2">截止時間：</span>
                     <span className="font-medium">{formatDateTime(order.deadlineTime)}</span>
                   </div>
                   <div className="flex items-center">
-                    <span className="text-gray-600 mr-2">預計送達：</span>
+                    <span className="text-lg text-gray-700 mr-2">預計送達：</span>
                     <span className="font-medium">
                       {order.estimatedDeliveryTime 
                         ? formatDateTime(order.estimatedDeliveryTime) 
