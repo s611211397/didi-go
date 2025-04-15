@@ -7,12 +7,10 @@ interface OrderItemsTableProps {
   orderItems: OrderItem[];
   onDeleteItem: (itemId: string, itemsToDelete?: string[]) => Promise<void> | void;
   onUpdatePaymentStatus?: (userId: string, isPaid: boolean, amount: number) => void; // 新增付款狀態更新函數
-  onSubmitOrder?: () => Promise<void> | void; // 新增提交訂單函數
   emptyStateMessage?: string;
   className?: string;
   readOnly?: boolean;
   isOrderCreator?: boolean; // 添加是否為訂單創建者的屬性
-  showSubmitButton?: boolean; // 是否顯示提交訂單按鈕
 }
 
 // 使用者訂購資訊的介面
@@ -53,12 +51,10 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
   orderItems,
   onDeleteItem,
   onUpdatePaymentStatus,
-  onSubmitOrder,
   emptyStateMessage = "目前沒有訂單項目",
   className = "",
   readOnly = false,
   isOrderCreator = false, // 默認非創建者
-  showSubmitButton = false,
 }) => {
   // 新增頁籤狀態
   const [activeTab, setActiveTab] = useState<'order' | 'payment'>('order');
@@ -563,25 +559,7 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
       </div>
       </div>
       
-      {/* 固定在視窗右下角的提交訂單按鈕 */}
-      {showSubmitButton && consolidatedItems.length > 0 && (
-        <div className="fixed bottom-6 right-6 z-50">
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onSubmitOrder?.();
-            }}
-            className="bg-[#10B981] hover:bg-[#059669] text-white font-medium py-3 px-6 rounded-full shadow-lg flex items-center space-x-2 transition-all duration-200 transform hover:scale-105 active:scale-95"
-            aria-label="提交訂單"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
-            <span>提交訂單</span>
-          </button>
-        </div>
-      )}
+
     </>
   );
 };
