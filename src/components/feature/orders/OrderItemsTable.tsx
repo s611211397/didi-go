@@ -333,12 +333,12 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
         {/* 標題列 - 全部依序靠左排列 */}
         <div className="flex flex-wrap items-center space-x-5 mb-3">
           <div className="flex items-center space-x-2">
-            <span className="text-base font-medium text-gray-700">已收：</span>
-            <span className="text-base font-bold text-green-600">NT$ {paymentSummary.collected}</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <span className="text-base font-medium text-gray-700">待收：</span>
-            <span className="text-base font-bold text-yellow-600">NT$ {paymentSummary.pending}</span>
+            <span className="text-base font-medium text-gray-700">收款狀態：</span>
+            <span className="text-base">
+              <span className="font-bold text-green-600">$ {paymentSummary.collected}</span>
+              <span className={percentage === 100 ? 'text-green-600' : 'text-gray-700'}> / </span>
+              <span className={`font-bold ${percentage === 100 ? 'text-green-600' : 'text-red-500'}`}>$ {paymentSummary.total}</span>
+            </span>
           </div>
           <div className="flex items-center space-x-2">
             <span className="text-base font-medium text-gray-700">收款進度：</span>
@@ -364,7 +364,7 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
           <div className="inline-flex">
             <button
               type="button"
-              className={`relative py-2 px-8 text-sm font-medium transition-all duration-200 rounded-t-lg ${activeTab === 'order' 
+              className={`relative py-2 px-8 text-sm font-medium transition-all duration-200 rounded-t-lg cursor-pointer ${activeTab === 'order' 
                 ? 'bg-white text-blue-600 border-t border-l border-r border-gray-200 shadow-sm -mb-px' 
                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
               onClick={(e) => {
@@ -377,7 +377,7 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
             </button>
             <button
               type="button"
-              className={`relative py-2 px-8 text-sm font-medium transition-all duration-200 rounded-t-lg ${activeTab === 'payment' 
+              className={`relative py-2 px-8 text-sm font-medium transition-all duration-200 rounded-t-lg cursor-pointer ${activeTab === 'payment' 
                 ? 'bg-white text-blue-600 border-t border-l border-r border-gray-200 shadow-sm -mb-px' 
                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
               onClick={(e) => {
@@ -519,7 +519,7 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
                               e.stopPropagation();
                               handlePaymentStatusChange(item.userId, !item.isPaid, item.total);
                             }}
-                            className={`w-5 h-5 rounded-full flex items-center justify-center border transition-colors 
+                            className={`w-5 h-5 rounded-full flex items-center justify-center border transition-colors cursor-pointer
                               ${item.isPaid 
                                 ? 'bg-green-500 border-green-600 text-white' 
                                 : 'bg-gray-200 border-gray-300 hover:bg-gray-300'
