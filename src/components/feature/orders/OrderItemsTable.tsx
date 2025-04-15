@@ -570,16 +570,17 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
                   </tr>
                 )}
               </tbody>
+              {/* 收款進度條 - 放在表格的 tfoot 中，與訂購頁籤結構一致 */}
+              {paymentViewItems.length > 0 && (
+                <tfoot className="bg-gray-50">
+                  <tr>
+                    <td colSpan={4} className="px-6 py-4">
+                      {renderPaymentProgress()}
+                    </td>
+                  </tr>
+                </tfoot>
+              )}
             </table>
-
-            {/* 收款進度條 - 與表格同寬 */}
-            {paymentViewItems.length > 0 && (
-              <div className="border-t border-gray-200 mt-4">
-                <div className="bg-gray-50 py-3 px-6">
-                  {renderPaymentProgress()}
-                </div>
-              </div>
-            )}
           </div>
         )}
       </div>
