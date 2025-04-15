@@ -331,25 +331,25 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
     return (
       <div className="w-full">
         {/* 標題列 - 全部依序靠左排列 */}
-        <div className="flex flex-wrap items-center space-x-4 mb-2">
-          <div className="flex items-center space-x-1">
-            <span className="text-sm font-medium text-gray-700">已收：</span>
-            <span className="text-sm font-bold text-green-600">NT$ {paymentSummary.collected}</span>
+        <div className="flex flex-wrap items-center space-x-5 mb-3">
+          <div className="flex items-center space-x-2">
+            <span className="text-base font-medium text-gray-700">已收：</span>
+            <span className="text-base font-bold text-green-600">NT$ {paymentSummary.collected}</span>
           </div>
-          <div className="flex items-center space-x-1">
-            <span className="text-sm font-medium text-gray-700">待收：</span>
-            <span className="text-sm font-bold text-yellow-600">NT$ {paymentSummary.pending}</span>
+          <div className="flex items-center space-x-2">
+            <span className="text-base font-medium text-gray-700">待收：</span>
+            <span className="text-base font-bold text-yellow-600">NT$ {paymentSummary.pending}</span>
           </div>
-          <div className="flex items-center space-x-1">
-            <span className="text-sm font-medium text-gray-700">收款進度：</span>
-            <span className="text-sm bg-green-100 text-green-800 py-0.5 px-2 rounded-full">{percentage}%</span>
+          <div className="flex items-center space-x-2">
+            <span className="text-base font-medium text-gray-700">收款進度：</span>
+            <span className="text-base bg-green-100 text-green-800 py-0.5 px-2 rounded-full font-medium">{percentage}%</span>
           </div>
         </div>
         
         {/* 進度條 - 與表格同寬 */}
-        <div className="w-full bg-gray-200 rounded-full h-2.5">
+        <div className="w-full bg-gray-200 rounded-full h-3">
           <div 
-            className={`bg-green-500 h-2.5 rounded-full transition-all duration-500 ease-in-out ${getWidthClass(percentage)}`} 
+            className={`bg-green-500 h-3 rounded-full transition-all duration-500 ease-in-out ${getWidthClass(percentage)}`} 
           ></div>
         </div>
       </div>
