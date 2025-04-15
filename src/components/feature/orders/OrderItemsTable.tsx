@@ -327,31 +327,30 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
       return 'w-full';
     };
     
-    // 調整收款進度渲染，將收款進度放在左側，收款金額在右側
+    // 依序顯示已收/待收和收款進度
     return (
-      <div className="flex flex-col md:flex-row items-start justify-between">
-        <div className="w-full md:w-1/2 text-left mb-3 md:mb-0">
-          <div className="flex items-center space-x-2">
-            <h3 className="text-base font-medium text-gray-700">收款進度</h3>
-            <span className="text-sm bg-green-100 text-green-800 py-0.5 px-2 rounded-full">{percentage}%</span>
+      <div className="w-full">
+        {/* 標題列 - 全部依序靠左排列 */}
+        <div className="flex flex-wrap items-center space-x-4 mb-2">
+          <div className="flex items-center space-x-1">
+            <span className="text-sm font-medium text-gray-700">已收：</span>
+            <span className="text-sm font-bold text-green-600">NT$ {paymentSummary.collected}</span>
           </div>
-          
-          <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-            <div 
-              className={`bg-green-500 h-2.5 rounded-full transition-all duration-500 ease-in-out ${getWidthClass(percentage)}`} 
-            ></div>
+          <div className="flex items-center space-x-1">
+            <span className="text-sm font-medium text-gray-700">待收：</span>
+            <span className="text-sm font-bold text-yellow-600">NT$ {paymentSummary.pending}</span>
+          </div>
+          <div className="flex items-center space-x-1">
+            <span className="text-sm font-medium text-gray-700">收款進度：</span>
+            <span className="text-sm bg-green-100 text-green-800 py-0.5 px-2 rounded-full">{percentage}%</span>
           </div>
         </div>
         
-        <div className="w-full md:w-1/3 text-left">
-          <div className="text-sm font-medium text-gray-700 flex justify-between">
-            <span>已收款</span>
-            <span className="text-green-600 font-bold">NT$ {paymentSummary.collected}</span>
-          </div>
-          <div className="text-sm font-medium text-gray-700 flex justify-between mt-1">
-            <span>待收款</span>
-            <span className="text-yellow-600 font-bold">NT$ {paymentSummary.pending}</span>
-          </div>
+        {/* 進度條 - 與表格同寬 */}
+        <div className="w-full bg-gray-200 rounded-full h-2.5">
+          <div 
+            className={`bg-green-500 h-2.5 rounded-full transition-all duration-500 ease-in-out ${getWidthClass(percentage)}`} 
+          ></div>
         </div>
       </div>
     );
@@ -556,13 +555,11 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
               </tbody>
             </table>
 
-            {/* 收款進度條 - 類似訂購頁籤的總金額顯示方式 */}
+            {/* 收款進度條 - 與表格同寬 */}
             {paymentViewItems.length > 0 && (
               <div className="border-t border-gray-200 mt-4">
                 <div className="bg-gray-50 py-3 px-6">
-                  <div className="max-w-3xl mx-auto"> {/* 限制收款狀態寬度 */}
-                    {renderPaymentProgress()}
-                  </div>
+                  {renderPaymentProgress()}
                 </div>
               </div>
             )}
