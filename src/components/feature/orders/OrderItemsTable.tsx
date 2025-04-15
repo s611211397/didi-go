@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo, useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { OrderItem } from '@/type/order';
 
 interface OrderItemsTableProps {
@@ -60,6 +61,49 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
   isSubmitted = false, // 默認訂單未提交
   disablePaymentTab = true, // 默認禁用收款頁籤
 }) => {
+  // 新增提示顯示狀態
+  const [showTooltip, setShowTooltip] = useState<boolean>(false);
+  
+  // 使用 ref 取得頁籤元素
+  const paymentTabRef = React.useRef<HTMLButtonElement>(null);
+  
+  // 記錄收款頁籤的位置
+  const [tabPosition, setTabPosition] = useState({ top: 0, left: 0 });
+
+  // 更新頁籤位置的函數
+  const updateTabPosition = () => {
+    if (paymentTabRef.current) {
+      const rect = paymentTabRef.current.getBoundingClientRect();
+      setTabPosition({
+        top: rect.top + window.scrollY,
+        left: rect.right + window.scrollX
+      });
+    }
+  };
+  
+  // 當提示顯示狀態變更時更新頁籤位置
+  useEffect(() => {
+    if (showTooltip) {
+      updateTabPosition();
+    }
+  }, [showTooltip]);
+
+  // 創建提示 Portal - 即時顯示提示訊息在頁籤右側
+  const tooltipPortal = showTooltip && disablePaymentTab && !isSubmitted ? (
+    ReactDOM.createPortal(
+      <div 
+        className="fixed z-[99999] bg-gray-600 bg-opacity-80 text-gray-200 px-3 py-1 rounded shadow-sm pointer-events-none text-xs whitespace-nowrap opacity-100 transition-none"
+        style={{
+          top: `${tabPosition.top + 5}px`,
+          left: `${tabPosition.left + 10}px`
+        }}
+      >
+        點擊右下角「確認訂單」按鈕，開啟收款功能
+      </div>,
+      document.body
+    )
+  ) : null;
+
   // 新增頁籤狀態
   const [activeTab, setActiveTab] = useState<'order' | 'payment'>(isSubmitted ? 'payment' : 'order');
   
@@ -362,6 +406,7 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
 
   return (
     <>
+      {tooltipPortal}
       <div className={`bg-white rounded-lg shadow-md relative ${className}`}>
       {/* 頁籤容器 - 確保寬度一致 */}
       <div className="sticky top-0 z-10 bg-gray-100 overflow-hidden border-b border-gray-200">
@@ -391,23 +436,35 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
               )}
               訂購
             </button>
-            <button
-              type="button"
-              disabled={disablePaymentTab && !isSubmitted}
-              className={`relative py-2 px-8 text-sm font-medium rounded-t-lg ${activeTab === 'payment' 
-                ? 'bg-white text-blue-600 border-t border-l border-r border-gray-200 shadow-sm -mb-px' 
-                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'} 
-                ${disablePaymentTab && !isSubmitted ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (!disablePaymentTab || isSubmitted) {
-                  setActiveTab('payment');
-                }
-              }}
-            >
-              收款
-            </button>
+            <div className="relative" 
+                onMouseOver={() => {
+                  if (disablePaymentTab && !isSubmitted) setShowTooltip(true);
+                }}
+                onMouseMove={() => {
+                  if (disablePaymentTab && !isSubmitted && !showTooltip) setShowTooltip(true);
+                }}
+                onMouseLeave={() => setShowTooltip(false)}
+              >
+                <button
+                  ref={paymentTabRef}
+                  type="button"
+                  disabled={disablePaymentTab && !isSubmitted}
+                  className={`relative py-2 px-8 text-sm font-medium rounded-t-lg ${activeTab === 'payment' 
+                    ? 'bg-white text-blue-600 border-t border-l border-r border-gray-200 shadow-sm -mb-px' 
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'} 
+                    ${disablePaymentTab && !isSubmitted ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (!disablePaymentTab || isSubmitted) {
+                      setActiveTab('payment');
+                    }
+                  }}
+                >
+                  收款
+                </button>
+                {/* 使用 Portal 顯示提示訊息，無需在這裡添加提示元素 */}
+              </div>
           </div>
         </div>
       </div>
