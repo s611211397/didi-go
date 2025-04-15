@@ -275,19 +275,12 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
               </div>
               <ul className="space-y-2 max-h-48 overflow-y-auto">
                 {details.map((detail, index) => (
-                  <li key={index} className="flex flex-col hover:bg-gray-50 px-1.5 py-1 rounded">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-700">{detail.menuItemName}</span>
-                      <span className="text-gray-500 text-xs px-2 py-1 bg-gray-100 rounded-full">
-                        {detail.quantity} 份
-                      </span>
-                    </div>
+                  <li key={index} className="flex items-center justify-between hover:bg-gray-50 px-1.5 py-1 rounded">
+                    <span className="text-gray-700">{detail.menuItemName} {detail.quantity}份</span>
+                    <span className="text-gray-600">$ {detail.subtotal}</span>
                     {detail.notes && (
-                      <span className="text-xs italic text-gray-500 mt-1">備註：{detail.notes}</span>
+                      <span className="text-xs italic text-gray-500 ml-1">({detail.notes})</span>
                     )}
-                    <div className="text-right text-gray-600 text-sm mt-1">
-                      NT$ {detail.subtotal}
-                    </div>
                   </li>
                 ))}
               </ul>
@@ -364,7 +357,7 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
           <div className="inline-flex">
             <button
               type="button"
-              className={`relative py-2 px-8 text-sm font-medium transition-all duration-200 rounded-t-lg cursor-pointer ${activeTab === 'order' 
+              className={`relative py-2 px-8 text-sm font-medium rounded-t-lg cursor-pointer ${activeTab === 'order' 
                 ? 'bg-white text-blue-600 border-t border-l border-r border-gray-200 shadow-sm -mb-px' 
                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
               onClick={(e) => {
@@ -377,7 +370,7 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
             </button>
             <button
               type="button"
-              className={`relative py-2 px-8 text-sm font-medium transition-all duration-200 rounded-t-lg cursor-pointer ${activeTab === 'payment' 
+              className={`relative py-2 px-8 text-sm font-medium rounded-t-lg cursor-pointer ${activeTab === 'payment' 
                 ? 'bg-white text-blue-600 border-t border-l border-r border-gray-200 shadow-sm -mb-px' 
                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
               onClick={(e) => {
@@ -432,13 +425,13 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        NT$ {item.unitPrice}
+                        $ {item.unitPrice}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {item.quantity}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        NT$ {item.subtotal}
+                        $ {item.subtotal}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">
                         {formatUserDisplay(item)}
@@ -473,11 +466,8 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
               {/* 總計金額行 */}
               <tfoot className="bg-gray-50">
                 <tr>
-                  <td colSpan={3} className="px-6 py-4 text-right text-sm font-medium text-gray-900">
-                    總計金額：
-                  </td>
-                  <td colSpan={3} className="px-6 py-4 text-left text-base font-bold text-gray-900">
-                    NT$ {calculateTotal()}
+                  <td colSpan={6} className="px-6 py-4 text-left text-base font-bold text-gray-900">
+                    總計金額：$ {calculateTotal()}
                   </td>
                 </tr>
               </tfoot>
@@ -541,7 +531,7 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
                         {renderOrderDetails(item.orderDetails)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        NT$ {item.total}
+                        $ {item.total}
                       </td>
                     </tr>
                   ))
