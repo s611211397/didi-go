@@ -565,7 +565,7 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
       
       {/* 固定在視窗右下角的提交訂單按鈕 */}
       {showSubmitButton && consolidatedItems.length > 0 && (
-        <div className="fixed bottom-6 right-6 z-50" style={{ position: 'fixed' }}>
+        <div className="fixed bottom-6 right-6 z-50">
           <button
             onClick={(e) => {
               e.preventDefault();
