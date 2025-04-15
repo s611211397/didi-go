@@ -132,6 +132,9 @@ const OrderDetailsPage: React.FC = () => {
   
   // 開啟新增商品對話框
   const handleAddItem = () => {
+    // 如果訂單已提交，則不允許新增商品
+    if (isSubmitted) return;
+    
     if (order && orderId) {
       // 確保先關閉對話框，然後再重新開啟，以避免重複錄入導致的閃爍
       setShowAddItemDialog(false);
@@ -265,6 +268,8 @@ const OrderDetailsPage: React.FC = () => {
                 </svg>
               }
               onClick={handleAddItem}
+              disabled={isSubmitted}
+              className={isSubmitted ? "opacity-60 cursor-not-allowed" : ""}
             >
               新增商品
             </Button>
