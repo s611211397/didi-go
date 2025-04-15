@@ -8,6 +8,7 @@ import Button from '@/components/ui/Button';
 import MobileNavBar from '@/components/layout/MobileNavBar';
 import AddOrderItemDialog from '@/components/feature/orders/AddOrderItemDialog';
 import OrderItemsTable from '@/components/feature/orders/OrderItemsTable';
+import { MessageDialog } from '@/components/ui/dialog';
 import { getOrder, getOrderItems, deleteOrderItem, updateOrderStatus } from '@/services/order';
 import { Order, OrderItem } from '@/type/order';
 import { Timestamp, OrderStatus } from '@/type/common';
@@ -33,6 +34,8 @@ const OrderDetailsPage: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [mounted, setMounted] = useState<boolean>(false);
   const [showAddItemDialog, setShowAddItemDialog] = useState<boolean>(false);
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false);
   
   // 使用 react-hook-form
   const methods = useForm<OrderFormValues>({
@@ -157,8 +160,8 @@ const OrderDetailsPage: React.FC = () => {
 
   // 處理表單提交
   const onSubmit = () => {
-    // 呼叫訂單提交函數
-    handleSubmitOrder();
+    // 顯示確認對話框
+    setShowConfirmDialog(true);
   };
 
 
@@ -167,12 +170,17 @@ const OrderDetailsPage: React.FC = () => {
     if (!orderId || !order) return;
     
     try {
+      // 關閉確認對話框
+      setShowConfirmDialog(false);
+      
       // 獨立更新訂單狀態
       await updateOrderStatus(orderId, OrderStatus.COMPLETED);
       
-      // 使用 alert 顯示成功訊息，這個訊息只應該在這裡顯示
-      alert('訂單已提交成功！');
-      router.push('/orders');
+      // 更新訂單已提交狀態
+      setIsSubmitted(true);
+      setError('');
+      
+      // 移除原生 alert 提示，避免重複提示
     } catch (err) {
       console.error('提交訂單失敗:', err);
       setError('提交訂單失敗，請稍後再試');
@@ -268,6 +276,9 @@ const OrderDetailsPage: React.FC = () => {
             onDeleteItem={handleDeleteItem}
             emptyStateMessage="目前沒有訂單項目，請點擊上方「新增商品」按鈕開始訂購。"
             isOrderCreator={order?.organizerId === user?.uid}
+            isSubmitted={isSubmitted}
+            disablePaymentTab={!isSubmitted}
+            readOnly={isSubmitted}
           />
 
 
@@ -281,24 +292,28 @@ const OrderDetailsPage: React.FC = () => {
             >
               返回
             </Button>
-            <Button
-              type="submit"
-              variant="primary"
-            >
-              提交訂單
-            </Button>
+            {!isSubmitted && (
+              <Button
+                type="submit"
+                variant="primary"
+              >
+                提交訂單
+              </Button>
+            )}
           </div>
           
           {/* 底部操作按鈕 (手機版) - 固定在畫面右下角 */}
-          <div className="fixed bottom-20 right-6 md:hidden z-10">
-            <Button 
-              type="submit" 
-              variant="primary"
-              className="shadow-lg rounded-full px-6 py-3"
-            >
-              提交訂單
-            </Button>
-          </div>
+          {!isSubmitted && (
+            <div className="fixed bottom-20 right-6 md:hidden z-10">
+              <Button 
+                type="submit" 
+                variant="primary"
+                className="shadow-lg rounded-full px-6 py-3"
+              >
+                提交訂單
+              </Button>
+            </div>
+          )}
         </div>
         
         {/* 底部導航區域 (手機版) */}
@@ -314,6 +329,25 @@ const OrderDetailsPage: React.FC = () => {
             onItemAdded={handleItemAdded}
           />
         )}
+        
+        {/* 確認提交對話框 */}
+        <MessageDialog
+          show={showConfirmDialog}
+          type="confirm"
+          title="確認提交訂單"
+          message="提交後將無法再更改訂購內容"
+          primaryButton={{
+            text: "確認提交",
+            variant: "primary",
+            onClick: handleSubmitOrder
+          }}
+          secondaryButton={{
+            text: "取消",
+            variant: "outline",
+            onClick: () => setShowConfirmDialog(false)
+          }}
+          onClose={() => setShowConfirmDialog(false)}
+        />
       </div>
     </form>
   );
