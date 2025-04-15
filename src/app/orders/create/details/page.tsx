@@ -302,7 +302,7 @@ const OrderDetailsPage: React.FC = () => {
                 type="submit"
                 variant="primary"
               >
-                提交訂單
+                確認訂單
               </Button>
             )}
           </div>
