@@ -66,6 +66,8 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
   
   // 使用 ref 取得頁籤元素
   const paymentTabRef = React.useRef<HTMLButtonElement>(null);
+  // 使用 ref 取得提示元素
+  const tooltipRef = React.useRef<HTMLDivElement>(null);
   
   // 記錄收款頁籤的位置
   const [tabPosition, setTabPosition] = useState({ top: 0, left: 0 });
@@ -88,15 +90,20 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
     }
   }, [showTooltip]);
 
+  // 當提示位置變更時更新提示元素的位置
+  useEffect(() => {
+    if (showTooltip && tooltipRef.current) {
+      tooltipRef.current.style.top = `${tabPosition.top + 5}px`;
+      tooltipRef.current.style.left = `${tabPosition.left + 10}px`;
+    }
+  }, [showTooltip, tabPosition]);
+
   // 創建提示 Portal - 即時顯示提示訊息在頁籤右側
   const tooltipPortal = showTooltip && disablePaymentTab && !isSubmitted ? (
     ReactDOM.createPortal(
       <div 
+        ref={tooltipRef}
         className="fixed z-[99999] bg-gray-600 bg-opacity-80 text-gray-200 px-3 py-1 rounded shadow-sm pointer-events-none text-xs whitespace-nowrap opacity-100 transition-none"
-        style={{
-          top: `${tabPosition.top + 5}px`,
-          left: `${tabPosition.left + 10}px`
-        }}
       >
         點擊右下角「確認訂單」按鈕，開啟收款功能
       </div>,
