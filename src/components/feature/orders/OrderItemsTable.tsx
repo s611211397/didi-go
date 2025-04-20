@@ -316,15 +316,32 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
   
   // 渲染付款視圖的用戶訂單詳情
   const renderOrderDetails = (details: PaymentViewItem['orderDetails']) => {
+    // 如果只有一個項目，直接顯示品項名稱、單價和數量
+    if (details.length === 1) {
+      const singleItem = details[0];
+      // 計算單價
+      const unitPrice = singleItem.quantity > 0 ? Math.round(singleItem.subtotal / singleItem.quantity) : 0;
+      
+      return (
+        <div className="flex items-center">
+          <span className="text-gray-700">
+            {singleItem.menuItemName} $ {unitPrice} x {singleItem.quantity}份
+            {singleItem.notes && (
+              <span className="text-xs italic text-gray-500 ml-1">({singleItem.notes})</span>
+            )}
+          </span>
+        </div>
+      );
+    }
+    
+    // 多個項目時使用懸停式提示
     return (
       <div className="group relative inline-block">
         <div className="cursor-help flex items-center">
           <span className="font-medium">{details[0].menuItemName}</span>
-          {details.length > 1 && (
-            <span className="text-sm text-gray-500 ml-1 bg-gray-100 px-1.5 py-0.5 rounded-full">
-              +{details.length - 1}項
-            </span>
-          )}
+          <span className="text-sm text-gray-500 ml-1 bg-gray-100 px-1.5 py-0.5 rounded-full">
+            +{details.length - 1}項
+          </span>
           <span className="ml-1 text-blue-500 text-xs">▼</span>
         </div>
         
@@ -336,15 +353,24 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
                 訂購項目明細 ({details.length} 項)
               </div>
               <ul className="space-y-2 max-h-48 overflow-y-auto">
-                {details.map((detail, index) => (
+                {details.map((detail, index) => {
+                  // 計算單價
+                  const unitPrice = detail.quantity > 0 ? Math.round(detail.subtotal / detail.quantity) : 0;
+                  
+                  return (
                   <li key={index} className="flex items-center justify-between hover:bg-gray-50 px-1.5 py-1 rounded">
-                    <span className="text-gray-700">{detail.menuItemName} {detail.quantity}份</span>
-                    <span className="text-gray-600">$ {detail.subtotal}</span>
-                    {detail.notes && (
-                      <span className="text-xs italic text-gray-500 ml-1">({detail.notes})</span>
-                    )}
+                    <div className="flex items-center">
+                      <span className="text-gray-700">{detail.menuItemName}</span>
+                      {detail.notes && (
+                        <span className="text-xs italic text-gray-500 ml-1">({detail.notes})</span>
+                      )}
+                    </div>
+                    <div className="flex items-center">
+                      <span className="text-gray-600">$ {unitPrice} x {detail.quantity}份</span>
+                    </div>
                   </li>
-                ))}
+                  );
+                })}
               </ul>
             </div>
           </div>
