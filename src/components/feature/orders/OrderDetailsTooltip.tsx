@@ -8,19 +8,21 @@ import { OrderDetailsTooltipProps } from './types';
  * 在收款頁籤中顯示用戶訂購的詳細項目
  */
 const OrderDetailsTooltip: React.FC<OrderDetailsTooltipProps> = ({ details }) => {
+  // 計算單價的工具函數
+  const calculateUnitPrice = (subtotal: number, quantity: number) => {
+    return quantity > 0 ? Math.round(subtotal / quantity) : 0;
+  };
+  
   // 如果只有一個項目，直接顯示品項名稱、單價和數量
   if (details.length === 1) {
-    const singleItem = details[0];
-    // 計算單價
-    const unitPrice = singleItem.quantity > 0 ? Math.round(singleItem.subtotal / singleItem.quantity) : 0;
+    const item = details[0];
+    const unitPrice = calculateUnitPrice(item.subtotal, item.quantity);
     
     return (
       <div className="flex items-center">
         <span className="text-gray-700">
-          {singleItem.menuItemName} $ {unitPrice} x {singleItem.quantity}份
-          {singleItem.notes && (
-            <span className="text-xs italic text-gray-500 ml-1">({singleItem.notes})</span>
-          )}
+          {item.menuItemName} $ {unitPrice} x {item.quantity}份
+          {item.notes && <span className="text-xs italic text-gray-500 ml-1">({item.notes})</span>}
         </span>
       </div>
     );
@@ -37,34 +39,27 @@ const OrderDetailsTooltip: React.FC<OrderDetailsTooltipProps> = ({ details }) =>
         <span className="ml-1 text-blue-500 text-xs">▼</span>
       </div>
       
-      {/* 懸停時顯示的 tooltip */}
-      <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-opacity delay-75 duration-200 absolute z-10 left-0 mt-1">
-        <div className="p-5 -mt-2 -mx-5">
-          <div className="w-64 p-3 bg-white border border-gray-200 rounded-md shadow-lg text-sm">
-            <div className="font-medium text-gray-700 pb-1 border-b border-gray-200 mb-2">
-              訂購項目明細 ({details.length} 項)
-            </div>
-            <ul className="space-y-2 max-h-48 overflow-y-auto">
-              {details.map((detail, index) => {
-                // 計算單價
-                const unitPrice = detail.quantity > 0 ? Math.round(detail.subtotal / detail.quantity) : 0;
-                
-                return (
-                <li key={index} className="flex items-center justify-between hover:bg-gray-50 px-1.5 py-1 rounded">
-                  <div className="flex items-center">
-                    <span className="text-gray-700">{detail.menuItemName}</span>
-                    {detail.notes && (
-                      <span className="text-xs italic text-gray-500 ml-1">({detail.notes})</span>
-                    )}
-                  </div>
-                  <div className="flex items-center">
-                    <span className="text-gray-600">$ {unitPrice} x {detail.quantity}份</span>
-                  </div>
-                </li>
-                );
-              })}
-            </ul>
+      {/* 懸停時顯示的提示框 */}
+      <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-opacity duration-200 absolute z-10 left-0 mt-2">
+        <div className="w-64 p-3 bg-white border border-gray-200 rounded-md shadow-lg text-sm">
+          <div className="font-medium text-gray-700 pb-1 border-b border-gray-200 mb-2">
+            訂購項目明細 ({details.length} 項)
           </div>
+          <ul className="space-y-2 max-h-48 overflow-y-auto">
+            {details.map((item, index) => (
+              <li key={index} className="flex items-center justify-between hover:bg-gray-50 px-1.5 py-1 rounded">
+                <div>
+                  <span className="text-gray-700">{item.menuItemName}</span>
+                  {item.notes && <span className="text-xs italic text-gray-500 ml-1">({item.notes})</span>}
+                </div>
+                <div>
+                  <span className="text-gray-600">
+                    $ {calculateUnitPrice(item.subtotal, item.quantity)} x {item.quantity}份
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>

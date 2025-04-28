@@ -1,16 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { OrderItemsTableProps } from './types';
 import OrderTabs from './OrderTabs';
 import OrderTabContent from './OrderTabContent';
 import PaymentTabContent from './PaymentTabContent';
-import { useOrderItemsLogic } from './hooks/useOrderItemsLogic';
 
 /**
  * 訂單項目表格元件
- * 用於顯示訂單的詳細項目，包含商品名稱、價格、數量等資訊
- * 相同品名和相同備註的訂單會被合併顯示，並提供訂購和收款兩個頁籤視圖
+ * 顯示訂單的詳細項目，包含訂購和收款兩個頁籤視圖
  */
 const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
   orderItems,
@@ -23,10 +21,15 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
   isSubmitted = false,
   disablePaymentTab = true,
 }) => {
-  const { activeTab, setActiveTab } = useOrderItemsLogic({ 
-    orderItems, 
-    isSubmitted 
-  });
+  // 頁籤狀態管理
+  const [activeTab, setActiveTab] = useState<'order' | 'payment'>(isSubmitted ? 'payment' : 'order');
+  
+  // 當訂單狀態變更時，更新頁籤狀態
+  useEffect(() => {
+    if (isSubmitted) {
+      setActiveTab('payment');
+    }
+  }, [isSubmitted]);
 
   return (
     <div className={`bg-white rounded-lg shadow-md relative ${className}`}>

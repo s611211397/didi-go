@@ -5,57 +5,44 @@ import { PaymentProgressBarProps } from './types';
 
 /**
  * 收款進度條元件
- * 顯示訂單收款進度
+ * 顯示訂單收款進度，支援響應式設計
  */
 const PaymentProgressBar: React.FC<PaymentProgressBarProps> = ({ collected, total }) => {
   const percentage = total > 0 ? Math.round((collected / total) * 100) : 0;
   
-  // 根據百分比選擇對應的寬度類別
-  const getWidthClass = (percent: number) => {
-    if (percent <= 0) return 'w-0';
-    if (percent <= 5) return 'w-1/20';
-    if (percent <= 10) return 'w-1/12';
-    if (percent <= 15) return 'w-1/8';
-    if (percent <= 20) return 'w-1/5';
-    if (percent <= 25) return 'w-1/4';
-    if (percent <= 30) return 'w-3/10';
-    if (percent <= 33) return 'w-1/3';
-    if (percent <= 40) return 'w-2/5';
-    if (percent <= 45) return 'w-9/20';
-    if (percent <= 50) return 'w-1/2';
-    if (percent <= 55) return 'w-11/20';
-    if (percent <= 60) return 'w-3/5';
-    if (percent <= 66) return 'w-2/3';
-    if (percent <= 70) return 'w-7/10';
-    if (percent <= 75) return 'w-3/4';
-    if (percent <= 80) return 'w-4/5';
-    if (percent <= 90) return 'w-9/10';
-    return 'w-full';
-  };
-  
   return (
     <div className="w-full">
-      {/* 標題列 - 全部依序靠左排列 */}
-      <div className="flex flex-wrap items-center space-x-5 mb-3">
-        <div className="flex items-center space-x-2">
-          <span className="text-base font-medium text-gray-700">收款狀態：</span>
-          <span className="text-base">
+      {/* 標題區域 - 使用 Flex 布局並在移動端自適應換行 */}
+      <div className="flex flex-wrap items-center gap-5 mb-3">
+        <div className="flex items-center">
+          <span className="text-gray-700 font-medium">收款狀態：</span>
+          <span className="ml-2">
             <span className="font-bold text-green-600">$ {collected}</span>
             <span className={percentage === 100 ? 'text-green-600' : 'text-gray-700'}> / </span>
             <span className={`font-bold ${percentage === 100 ? 'text-green-600' : 'text-red-500'}`}>$ {total}</span>
           </span>
         </div>
-        <div className="flex items-center space-x-2">
-          <span className="text-base font-medium text-gray-700">收款進度：</span>
-          <span className="text-base bg-green-100 text-green-800 py-0.5 px-2 rounded-full font-medium">{percentage}%</span>
+        <div className="flex items-center">
+          <span className="text-gray-700 font-medium">收款進度：</span>
+          <span className="ml-2 bg-green-100 text-green-800 py-0.5 px-2 rounded-full font-medium">{percentage}%</span>
         </div>
       </div>
       
-      {/* 進度條 - 與表格同寬 */}
-      <div className="w-full bg-gray-200 rounded-full h-3">
-        <div 
-          className={`bg-green-500 h-3 rounded-full transition-all duration-500 ease-in-out ${getWidthClass(percentage)}`} 
-        ></div>
+      {/* 進度條 - 不使用內聯樣式，而是基於條件渲染不同寬度的元素 */}
+      <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+        {percentage === 0 && <div className="w-0 bg-green-500 h-3"></div>}
+        {percentage > 0 && percentage <= 10 && <div className="w-1/12 bg-green-500 h-3"></div>}
+        {percentage > 10 && percentage <= 20 && <div className="w-1/5 bg-green-500 h-3"></div>}
+        {percentage > 20 && percentage <= 25 && <div className="w-1/4 bg-green-500 h-3"></div>}
+        {percentage > 25 && percentage <= 33 && <div className="w-1/3 bg-green-500 h-3"></div>}
+        {percentage > 33 && percentage <= 40 && <div className="w-2/5 bg-green-500 h-3"></div>}
+        {percentage > 40 && percentage <= 50 && <div className="w-1/2 bg-green-500 h-3"></div>}
+        {percentage > 50 && percentage <= 60 && <div className="w-3/5 bg-green-500 h-3"></div>}
+        {percentage > 60 && percentage <= 66 && <div className="w-2/3 bg-green-500 h-3"></div>}
+        {percentage > 66 && percentage <= 75 && <div className="w-3/4 bg-green-500 h-3"></div>}
+        {percentage > 75 && percentage <= 80 && <div className="w-4/5 bg-green-500 h-3"></div>}
+        {percentage > 80 && percentage < 100 && <div className="w-11/12 bg-green-500 h-3"></div>}
+        {percentage === 100 && <div className="w-full bg-green-500 h-3"></div>}
       </div>
     </div>
   );
