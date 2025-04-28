@@ -9,7 +9,7 @@ import MobileNavBar from '@/components/layout/MobileNavBar';
 import AddOrderItemDialog from '@/components/feature/orders/AddOrderItemDialog';
 import OrderItemsTable from '@/components/feature/orders/OrderItemsTable';
 import { MessageDialog } from '@/components/ui/dialog';
-import { getOrder, getOrderItems, deleteOrderItem, updateOrderStatus } from '@/services/order';
+import { getOrder, getOrderItems, deleteOrderItem, updateOrderStatus, updateOrderItemPaymentStatus } from '@/services/order';
 import { Order, OrderItem } from '@/type/order';
 import { Timestamp, OrderStatus } from '@/type/common';
 
@@ -75,6 +75,12 @@ const OrderDetailsPage: React.FC = () => {
           
           // 獲取訂單項目
           const items = await getOrderItems(orderId);
+          
+          // 檢查訂單狀態
+          if (orderData.status === OrderStatus.COMPLETED) {
+            setIsSubmitted(true);
+          }
+          
           setOrderItems(items);
         } else {
           setError('找不到訂單資訊');
@@ -127,6 +133,36 @@ const OrderDetailsPage: React.FC = () => {
     } catch (error) {
       console.error('刪除訂單項目失敗:', error);
       setError('刪除訂單項目失敗，請稍後再試');
+    }
+  };
+  
+  // 更新付款狀態
+  const handleUpdatePaymentStatus = async (userId: string, isPaid: boolean, amount: number) => {
+    if (!orderId) return;
+    
+    try {
+      // 找出該用戶的所有訂單項目
+      const userItems = orderItems.filter(item => item.userId === userId);
+      
+      // 更新所有項目的付款狀態
+      await Promise.all(userItems.map(item => 
+        updateOrderItemPaymentStatus(orderId, item.id, isPaid)
+      ));
+      
+      // 更新本地狀態
+      setOrderItems(
+        orderItems.map(item => 
+          item.userId === userId 
+            ? { ...item, isPaid } 
+            : item
+        )
+      );
+      
+      // 可以在這裡添加付款記錄邏輯
+      console.log(`用戶 ${userId} 的 ${amount} 元訂單已標記為 ${isPaid ? '已付款' : '未付款'}`);
+    } catch (error) {
+      console.error('更新付款狀態失敗:', error);
+      setError('更新付款狀態失敗，請稍後再試');
     }
   };
   
@@ -279,6 +315,7 @@ const OrderDetailsPage: React.FC = () => {
           <OrderItemsTable
             orderItems={orderItems}
             onDeleteItem={handleDeleteItem}
+            onUpdatePaymentStatus={handleUpdatePaymentStatus}
             emptyStateMessage="目前沒有訂單項目，請點擊上方「新增商品」按鈕開始訂購。"
             isOrderCreator={order?.organizerId === user?.uid}
             isSubmitted={isSubmitted}

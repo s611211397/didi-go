@@ -288,3 +288,31 @@ export const deleteOrderItem = async (orderId: string, itemId: string): Promise<
     throw new Error('刪除訂單項目失敗，請稍後再試');
   }
 };
+
+/**
+ * 更新訂單項目付款狀態
+ * @param orderId 訂單ID
+ * @param itemId 項目ID
+ * @param isPaid 是否已付款
+ */
+export const updateOrderItemPaymentStatus = async (
+  orderId: string, 
+  itemId: string, 
+  isPaid: boolean
+): Promise<void> => {
+  try {
+    const itemRef = doc(db, 'orders', orderId, 'order_items', itemId);
+    
+    await updateDoc(itemRef, {
+      isPaid,
+      paymentTime: isPaid ? serverTimestamp() : null,
+      updatedAt: serverTimestamp()
+    });
+    
+    // 如果需要，可以在這裡更新訂單的總付款狀態
+    // 例如檢查所有項目是否已付款，然後更新訂單的付款狀態
+  } catch (error) {
+    console.error('更新付款狀態失敗:', error);
+    throw new Error('更新付款狀態失敗，請稍後再試');
+  }
+};
