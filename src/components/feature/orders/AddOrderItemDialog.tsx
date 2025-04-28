@@ -244,9 +244,15 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
       setUserId(currentUser?.uid || '');
       setUserName(userProfile?.displayName || currentUser?.displayName || '');
     } else {
-      // 切換為其他人員
-      setUserId('custom');
+      // 切換為其他人員 - 清空用戶名稱，等待用戶輸入
+      setCustomUserName('');
     }
+  };
+  
+  // 為自定義用戶生成唯一 ID
+  const generateCustomUserId = (name: string): string => {
+    // 使用名稱作為基礎，並添加時間戳以確保唯一性
+    return `custom_${name.trim().replace(/\s+/g, '_').toLowerCase()}_${Date.now()}`;
   };
   
   // 處理加入商品
@@ -277,12 +283,16 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
         notes: getItemNote(item.id)
       };
       
+      // 為自定義用戶生成唯一 ID
+      const finalUserId = isCustomUser ? generateCustomUserId(customUserName) : userId;
+      const finalUserName = isCustomUser ? customUserName : userName;
+      
       // 創建訂單項目
       await createOrderItem(
         orderId,
         orderItemParams,
-        isCustomUser ? 'custom' : userId,
-        isCustomUser ? customUserName : userName
+        finalUserId,
+        finalUserName
       );
       
       // 重置該商品的數量
