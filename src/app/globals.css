@@ -25,3 +25,26 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* 自定義動畫 */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-in-out forwards;
+}
+
+/* 定位提示框 */
+:root {
+  --tooltip-top: 0px;
+  --tooltip-left: 0px;
+}
+
+.tooltip-position {
+  position: fixed;
+  z-index: 50; /* z-50 */
+  top: var(--tooltip-top);
+  left: var(--tooltip-left);
+}

@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { OrderDetailsTooltipProps } from './types';
 
 /**
@@ -11,6 +12,53 @@ const OrderDetailsTooltip: React.FC<OrderDetailsTooltipProps> = ({ details }) =>
   // 計算單價的工具函數
   const calculateUnitPrice = (subtotal: number, quantity: number) => {
     return quantity > 0 ? Math.round(subtotal / quantity) : 0;
+  };
+
+  // 引用元素
+  const triggerRef = useRef<HTMLDivElement>(null);
+  
+  // 顯示狀態
+  const [isVisible, setIsVisible] = useState(false);
+  
+  // 確保只在客戶端渲染
+  const [isMounted, setIsMounted] = useState(false);
+  
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
+  
+  // 更新tooltip位置
+  const updateTooltipPosition = () => {
+    if (triggerRef.current) {
+      const triggerRect = triggerRef.current.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      
+      // 估算tooltip寬度 (這裡取固定值264px，包含內容寬度和padding)
+      const tooltipWidth = 264;
+      
+      // 計算基本位置（預設在元素下方）
+      const top = triggerRect.bottom + 8; // 與觸發元素保持8px間距
+      const left = Math.min(
+        triggerRect.left,
+        Math.max(16, viewportWidth - tooltipWidth - 16)
+      );
+      
+      // 使用CSS變數更新位置
+      document.documentElement.style.setProperty('--tooltip-top', `${top}px`);
+      document.documentElement.style.setProperty('--tooltip-left', `${left}px`);
+    }
+  };
+  
+  // 處理鼠標進入
+  const handleMouseEnter = () => {
+    updateTooltipPosition();
+    setIsVisible(true);
+  };
+  
+  // 處理鼠標離開
+  const handleMouseLeave = () => {
+    setIsVisible(false);
   };
   
   // 如果只有一個項目，直接顯示品項名稱、單價和數量
@@ -30,8 +78,13 @@ const OrderDetailsTooltip: React.FC<OrderDetailsTooltipProps> = ({ details }) =>
   
   // 多個項目時使用懸停式提示
   return (
-    <div className="group relative inline-block">
-      <div className="cursor-help flex items-center">
+    <>
+      <div 
+        ref={triggerRef}
+        className="relative cursor-help inline-flex items-center"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
         <span className="font-medium">{details[0].menuItemName}</span>
         <span className="text-sm text-gray-500 ml-1 bg-gray-100 px-1.5 py-0.5 rounded-full">
           +{details.length - 1}項
@@ -39,30 +92,37 @@ const OrderDetailsTooltip: React.FC<OrderDetailsTooltipProps> = ({ details }) =>
         <span className="ml-1 text-blue-500 text-xs">▼</span>
       </div>
       
-      {/* 懸停時顯示的提示框 */}
-      <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-opacity duration-200 absolute z-10 left-0 mt-2">
-        <div className="w-64 p-3 bg-white border border-gray-200 rounded-md shadow-lg text-sm">
-          <div className="font-medium text-gray-700 pb-1 border-b border-gray-200 mb-2">
-            訂購項目明細 ({details.length} 項)
+      {/* 懸停時顯示的提示框 - 改進版：使用Portal確保不受表格限制 */}
+      {isMounted && isVisible && createPortal(
+        <div 
+          className="tooltip-position animate-fade-in"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          <div className="w-64 p-3 bg-white border border-gray-200 rounded-md shadow-xl text-sm">
+            <div className="font-medium text-gray-700 pb-1 border-b border-gray-200 mb-2">
+              訂購項目明細 ({details.length} 項)
+            </div>
+            <ul className="space-y-2 max-h-48 overflow-y-auto">
+              {details.map((item, index) => (
+                <li key={index} className="flex items-center justify-between hover:bg-gray-50 px-1.5 py-1 rounded">
+                  <div>
+                    <span className="text-gray-700">{item.menuItemName}</span>
+                    {item.notes && <span className="text-xs italic text-gray-500 ml-1">({item.notes})</span>}
+                  </div>
+                  <div>
+                    <span className="text-gray-600">
+                      $ {calculateUnitPrice(item.subtotal, item.quantity)} x {item.quantity}份
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
           </div>
-          <ul className="space-y-2 max-h-48 overflow-y-auto">
-            {details.map((item, index) => (
-              <li key={index} className="flex items-center justify-between hover:bg-gray-50 px-1.5 py-1 rounded">
-                <div>
-                  <span className="text-gray-700">{item.menuItemName}</span>
-                  {item.notes && <span className="text-xs italic text-gray-500 ml-1">({item.notes})</span>}
-                </div>
-                <div>
-                  <span className="text-gray-600">
-                    $ {calculateUnitPrice(item.subtotal, item.quantity)} x {item.quantity}份
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    </div>
+        </div>,
+        document.body
+      )}
+    </>
   );
 };
 
