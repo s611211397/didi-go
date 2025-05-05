@@ -28,8 +28,8 @@ const OrderDetailsTooltip: React.FC<OrderDetailsTooltipProps> = ({ details }) =>
     return () => setIsMounted(false);
   }, []);
   
-  // 更新tooltip位置
-  const updateTooltipPosition = () => {
+  // 更新tooltip和橋樑元素位置
+  const updatePositions = () => {
     if (triggerRef.current) {
       const triggerRect = triggerRef.current.getBoundingClientRect();
       const viewportWidth = window.innerWidth;
@@ -37,27 +37,42 @@ const OrderDetailsTooltip: React.FC<OrderDetailsTooltipProps> = ({ details }) =>
       // 估算tooltip寬度 (這裡取固定值264px，包含內容寬度和padding)
       const tooltipWidth = 264;
       
-      // 計算基本位置（預設在元素下方）
-      const top = triggerRect.bottom + 8; // 與觸發元素保持8px間距
+      // 設置tooltip位置
+      const top = triggerRect.bottom + 4; // 減少間距，使過渡更容易
       const left = Math.min(
         triggerRect.left,
         Math.max(16, viewportWidth - tooltipWidth - 16)
       );
       
-      // 使用CSS變數更新位置
+      // 設置橋樑元素位置和尺寸
+      document.documentElement.style.setProperty('--bridge-width', `${triggerRect.width}px`);
+      document.documentElement.style.setProperty('--bridge-top', `${triggerRect.bottom}px`);
+      document.documentElement.style.setProperty('--bridge-left', `${triggerRect.left}px`);
+      
+      // 設置tooltip位置
       document.documentElement.style.setProperty('--tooltip-top', `${top}px`);
       document.documentElement.style.setProperty('--tooltip-left', `${left}px`);
     }
   };
   
-  // 處理鼠標進入
+  // 處理鼠標進入觸發元素
   const handleMouseEnter = () => {
-    updateTooltipPosition();
+    updatePositions();
     setIsVisible(true);
   };
   
-  // 處理鼠標離開
+  // 處理鼠標離開觸發元素
   const handleMouseLeave = () => {
+    setIsVisible(false);
+  };
+  
+  // 處理鼠標進入tooltip
+  const handleTooltipMouseEnter = () => {
+    setIsVisible(true);
+  };
+  
+  // 處理鼠標離開tooltip
+  const handleTooltipMouseLeave = () => {
     setIsVisible(false);
   };
   
@@ -92,32 +107,41 @@ const OrderDetailsTooltip: React.FC<OrderDetailsTooltipProps> = ({ details }) =>
         <span className="ml-1 text-blue-500 text-xs">▼</span>
       </div>
       
-      {/* 懸停時顯示的提示框 - 改進版：使用Portal確保不受表格限制 */}
+      {/* 懸停時顯示的提示框 - 使用Portal確保不受表格限制 */}
       {isMounted && isVisible && createPortal(
-        <div 
-          className="tooltip-position animate-fade-in"
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        >
-          <div className="w-64 p-3 bg-white border border-gray-200 rounded-md shadow-xl text-sm">
-            <div className="font-medium text-gray-700 pb-1 border-b border-gray-200 mb-2">
-              訂購項目明細 ({details.length} 項)
+        <div className="tooltip-container">
+          {/* 連接觸發元素和tooltip的不可見橋樑 */}
+          <div 
+            className="tooltip-bridge"
+            onMouseEnter={handleTooltipMouseEnter}
+          />
+          
+          {/* 實際的tooltip */}
+          <div 
+            className="tooltip-position animate-fade-in"
+            onMouseEnter={handleTooltipMouseEnter}
+            onMouseLeave={handleTooltipMouseLeave}
+          >
+            <div className="w-64 p-3 bg-white border border-gray-200 rounded-md shadow-xl text-sm">
+              <div className="font-medium text-gray-700 pb-1 border-b border-gray-200 mb-2">
+                訂購項目明細 ({details.length} 項)
+              </div>
+              <ul className="space-y-2 max-h-48 overflow-y-auto">
+                {details.map((item, index) => (
+                  <li key={index} className="flex items-center justify-between hover:bg-gray-50 px-1.5 py-1 rounded">
+                    <div>
+                      <span className="text-gray-700">{item.menuItemName}</span>
+                      {item.notes && <span className="text-xs italic text-gray-500 ml-1">({item.notes})</span>}
+                    </div>
+                    <div>
+                      <span className="text-gray-600">
+                        $ {calculateUnitPrice(item.subtotal, item.quantity)} x {item.quantity}份
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <ul className="space-y-2 max-h-48 overflow-y-auto">
-              {details.map((item, index) => (
-                <li key={index} className="flex items-center justify-between hover:bg-gray-50 px-1.5 py-1 rounded">
-                  <div>
-                    <span className="text-gray-700">{item.menuItemName}</span>
-                    {item.notes && <span className="text-xs italic text-gray-500 ml-1">({item.notes})</span>}
-                  </div>
-                  <div>
-                    <span className="text-gray-600">
-                      $ {calculateUnitPrice(item.subtotal, item.quantity)} x {item.quantity}份
-                    </span>
-                  </div>
-                </li>
-              ))}
-            </ul>
           </div>
         </div>,
         document.body
