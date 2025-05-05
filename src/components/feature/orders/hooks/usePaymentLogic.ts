@@ -20,12 +20,31 @@ export function usePaymentLogic({ orderItems }: UsePaymentLogicProps) {
   useEffect(() => {
     // 確保所有用戶的付款狀態都被正確初始化
     const statusMap: Record<string, boolean> = {};
+    const userNameMap: Record<string, string> = {}; // 用於追蹤自定義用戶名稱和ID的映射
+    
     orderItems.forEach(item => {
-      // 確保對每個用戶只設置一次初始狀態
-      if (statusMap[item.userId] === undefined) {
+      const isCustomUser = item.userId.startsWith('custom_');
+      
+      // 對於自定義用戶，檢查是否已經有相同名稱的用戶存在
+      if (isCustomUser) {
+        const existingUserId = userNameMap[item.userName];
+        
+        // 如果已經有同名的用戶，則使用已存在的付款狀態
+        if (existingUserId && statusMap[existingUserId] !== undefined) {
+          statusMap[item.userId] = statusMap[existingUserId];
+        } 
+        // 否則設置新的付款狀態
+        else if (statusMap[item.userId] === undefined) {
+          statusMap[item.userId] = item.isPaid || false;
+          userNameMap[item.userName] = item.userId; // 記錄此用戶名和ID的映射
+        }
+      } 
+      // 對於系統用戶，正常設置付款狀態
+      else if (statusMap[item.userId] === undefined) {
         statusMap[item.userId] = item.isPaid || false;
       }
     });
+    
     setPaymentStatus(statusMap);
   }, [orderItems]);
 
@@ -43,10 +62,16 @@ export function usePaymentLogic({ orderItems }: UsePaymentLogicProps) {
     orderItems.forEach(item => {
       if (!item.userId) return; // 防禦性程式設計，確保有 userId
       
+      // 為用戶創建一個唯一鍵
+      // 對於自定義用戶（以 custom_ 開頭的 userId），使用用戶名稱作為鍵
+      // 對於系統用戶，使用 userId 作為鍵
+      const isCustomUser = item.userId.startsWith('custom_');
+      const userKey = isCustomUser ? `name_${item.userName}` : item.userId;
+      
       // 如果用戶不存在於 Map 中，創建新條目
-      if (!userMap.has(item.userId)) {
-        userMap.set(item.userId, {
-          userId: item.userId,
+      if (!userMap.has(userKey)) {
+        userMap.set(userKey, {
+          userId: item.userId, // 保留原始 userId 用於功能操作
           userName: item.userName,
           isPaid: paymentStatus[item.userId] ?? false,
           total: 0,
@@ -55,7 +80,7 @@ export function usePaymentLogic({ orderItems }: UsePaymentLogicProps) {
       }
       
       // 獲取用戶項目
-      const userItem = userMap.get(item.userId)!;
+      const userItem = userMap.get(userKey)!;
       
       // 更新總金額
       userItem.total += item.subtotal;
