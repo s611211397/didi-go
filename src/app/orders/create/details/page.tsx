@@ -35,6 +35,9 @@ const OrderDetailsPage: React.FC = () => {
   const [mounted, setMounted] = useState<boolean>(false);
   const [showAddItemDialog, setShowAddItemDialog] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  // 追蹤訂單狀態相關資訊
+  const [activeOrderTab, setActiveOrderTab] = useState<'order' | 'payment'>('order');
+  const [orderPaymentProgress, setOrderPaymentProgress] = useState<number>(0);
   const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false);
   
   // 使用 react-hook-form
@@ -136,6 +139,36 @@ const OrderDetailsPage: React.FC = () => {
     }
   };
   
+  // 當訂單狀態變更時，更新頁籤狀態
+  useEffect(() => {
+    if (isSubmitted) {
+      setActiveOrderTab('payment');
+    }
+  }, [isSubmitted]);
+
+  // 計算訂單付款進度
+  useEffect(() => {
+    if (orderItems.length > 0) {
+      // 計算已付款金額與總金額
+      let totalAmount = 0;
+      let paidAmount = 0;
+      
+      orderItems.forEach(item => {
+        const itemTotal = item.quantity * item.unitPrice;
+        totalAmount += itemTotal;
+        if (item.isPaid) {
+          paidAmount += itemTotal;
+        }
+      });
+      
+      // 計算付款進度百分比
+      const progress = totalAmount > 0 ? Math.round((paidAmount / totalAmount) * 100) : 0;
+      setOrderPaymentProgress(progress);
+    } else {
+      setOrderPaymentProgress(0);
+    }
+  }, [orderItems]);
+  
   // 更新付款狀態
   const handleUpdatePaymentStatus = async (userId: string, isPaid: boolean, amount: number) => {
     if (!orderId) return;
@@ -217,6 +250,8 @@ const OrderDetailsPage: React.FC = () => {
       
       // 更新訂單已提交狀態
       setIsSubmitted(true);
+      // 更新頁籤狀態為收款頁籤
+      setActiveOrderTab('payment');
       setError('');
       
       // 移除原生 alert 提示，避免重複提示
@@ -271,6 +306,25 @@ const OrderDetailsPage: React.FC = () => {
                     <span className="font-medium">
                       {order.title.split('從')[1]?.split('訂購')[0].trim() || order.tags?.[0] || '未知餐廳'}
                     </span>
+                    {/* 狀態指示圖示 */}
+                    <span className="ml-2 inline-flex">
+                      {orderPaymentProgress === 100 ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                          <svg className="mr-1 h-3 w-3 text-green-600" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
+                          </svg>
+                          已完成
+                        </span>
+                      ) : activeOrderTab === 'payment' ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                          收款中
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                          訂購中
+                        </span>
+                      )}
+                    </span>
                   </div>
                   <div className="flex items-center">
                     <span className="text-lg text-gray-700 mr-2">截止時間：</span>
@@ -321,6 +375,7 @@ const OrderDetailsPage: React.FC = () => {
             isSubmitted={isSubmitted}
             disablePaymentTab={!isSubmitted}
             readOnly={isSubmitted}
+            onTabChange={(tab) => setActiveOrderTab(tab)}
           />
 
 

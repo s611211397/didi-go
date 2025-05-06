@@ -20,9 +20,18 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
   isOrderCreator = false,
   isSubmitted = false,
   disablePaymentTab = true,
+  onTabChange,
 }) => {
   // 頁籤狀態管理
   const [activeTab, setActiveTab] = useState<'order' | 'payment'>(isSubmitted ? 'payment' : 'order');
+  
+  // 通知父組件當前標籤狀態變化
+  const handleTabChange = (tab: 'order' | 'payment') => {
+    setActiveTab(tab);
+    if (onTabChange) {
+      onTabChange(tab);
+    }
+  };
   
   // 當訂單狀態變更時，更新頁籤狀態
   useEffect(() => {
@@ -36,7 +45,7 @@ const OrderItemsTable: React.FC<OrderItemsTableProps> = ({
       {/* 頁籤導航 */}
       <OrderTabs 
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
         isSubmitted={isSubmitted}
         disablePaymentTab={disablePaymentTab}
       />

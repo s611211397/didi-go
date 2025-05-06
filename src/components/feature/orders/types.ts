@@ -13,6 +13,7 @@ export interface OrderItemsTableProps {
   isOrderCreator?: boolean;
   isSubmitted?: boolean;
   disablePaymentTab?: boolean;
+  onTabChange?: (tab: 'order' | 'payment') => void;
 }
 
 /**
