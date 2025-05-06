@@ -301,6 +301,14 @@ const AddOrderItemDialog: React.FC<AddOrderItemDialogProps> = ({
         [item.id]: 0
       }));
       
+      // 清除該商品的備註
+      if (getItemNote(item.id)) {
+        setItemNotes(prev => ({
+          ...prev,
+          [item.id]: ''
+        }));
+      }
+      
       setIsLoading(false);
       
       // 通知父組件更新訂單項目

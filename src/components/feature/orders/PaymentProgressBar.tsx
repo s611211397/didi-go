@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PaymentProgressBarProps } from './types';
 import { MessageDialog } from '@/components/ui/dialog';
 
@@ -11,12 +11,10 @@ import { MessageDialog } from '@/components/ui/dialog';
 const PaymentProgressBar: React.FC<PaymentProgressBarProps> = ({ collected, total }) => {
   const percentage = total > 0 ? Math.round((collected / total) * 100) : 0;
   const [showCompletionDialog, setShowCompletionDialog] = useState<boolean>(false);
-  const completionShown = useRef<boolean>(false);
   
   useEffect(() => {
-    if (percentage === 100 && !completionShown.current) {
+    if (percentage === 100) {
       setShowCompletionDialog(true);
-      completionShown.current = true;
     }
   }, [percentage]);
   
