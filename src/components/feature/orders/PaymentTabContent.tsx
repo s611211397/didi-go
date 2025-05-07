@@ -5,6 +5,7 @@ import { PaymentTabContentProps } from './types';
 import OrderDetailsTooltip from './OrderDetailsTooltip';
 import PaymentProgressBar from './PaymentProgressBar';
 import { usePaymentLogic } from './hooks/usePaymentLogic';
+import { useSearchParams } from 'next/navigation';
 
 /**
  * 收款頁籤內容元件
@@ -19,6 +20,12 @@ const PaymentTabContent: React.FC<PaymentTabContentProps> = ({
   const { paymentViewItems, paymentSummary, updatePaymentStatus } = usePaymentLogic({ 
     orderItems: orderItems || [] 
   });
+  
+  // 取得URL查詢參數
+  const searchParams = useSearchParams();
+  
+  // 檢查是否從歷史訂單頁面跳轉過來
+  const fromHistory = searchParams.get('fromHistory') === 'true';
   
   // 除錯輸出：確認收到的訂單項目數量
   useEffect(() => {
@@ -48,6 +55,12 @@ const PaymentTabContent: React.FC<PaymentTabContentProps> = ({
 
   return (
     <div className="inline-block min-w-full align-middle">
+      {/* 如果是從歷史訂單頁面跳轉過來，顯示提示信息 */}
+      {fromHistory && (
+        <div className="bg-blue-50 p-4 mb-4 rounded border border-blue-200">
+          <p className="text-blue-700">您正在查看歷史訂單，付款狀態不可修改。</p>
+        </div>
+      )}
       <table className="w-full divide-y divide-gray-200">
         <thead className="sticky top-0 z-20 shadow-sm bg-gray-50 border-b border-gray-200">
           <tr>
@@ -81,8 +94,11 @@ const PaymentTabContent: React.FC<PaymentTabContentProps> = ({
                       item.isPaid 
                         ? 'bg-green-500 border-green-600 text-white' 
                         : 'bg-gray-200 border-gray-300 hover:bg-gray-300'
+                    } ${
+                      fromHistory ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'
                     }`}
                     aria-label={item.isPaid ? "已付款" : "未付款"}
+                    disabled={fromHistory} /* 從歷史訂單頁面跳轉時禁用按鈕 */
                   >
                     {item.isPaid && (
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
