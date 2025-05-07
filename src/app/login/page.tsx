@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import Button from '@/components/ui/Button';
 
@@ -60,7 +59,7 @@ const LoginPage: React.FC = () => {
           )}
           
           {/* Google 登入按鈕 */}
-          <div className="w-full mb-8">
+          <div className="w-full">
             <Button
               variant="google"
               fullWidth
@@ -80,17 +79,6 @@ const LoginPage: React.FC = () => {
             >
               使用 Google 帳號登入
             </Button>
-          </div>
-          
-          {/* 註冊連結 */}
-          <div className="text-center">
-            <span className="text-gray-600">還沒有帳號？</span>
-            <Link 
-              href="/register" 
-              className="ml-1 text-green-600 hover:text-green-800 font-medium"
-            >
-              立即註冊
-            </Link>
           </div>
         </div>
       </div>

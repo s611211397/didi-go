@@ -12,6 +12,9 @@ import { useAuth } from '@/hooks/useAuth';
 const Header: React.FC = () => {
   const { currentUser, userProfile, logout } = useAuth();
   const pathname = usePathname();
+
+  // 如果當前是登入頁面，不顯示「登入」按鈕
+  const isLoginPage = pathname === '/login';
   
   // 檢查當前路徑是否匹配指定的路徑模式
   const isActivePath = (path: string): boolean => {
@@ -35,11 +38,13 @@ const Header: React.FC = () => {
               Din GO
             </Link>
           </div>
-          <div>
-            <Link href="/login" className="text-[#10B981] hover:underline">
-              登入
-            </Link>
-          </div>
+          {!isLoginPage && (
+            <div>
+              <Link href="/login" className="text-[#10B981] hover:underline">
+                登入
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     );
