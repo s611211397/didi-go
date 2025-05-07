@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { PaymentProgressBarProps } from './types';
 import { MessageDialog } from '@/components/ui/dialog';
+import { useSearchParams } from 'next/navigation';
 
 /**
  * 收款進度條元件
@@ -12,11 +13,17 @@ const PaymentProgressBar: React.FC<PaymentProgressBarProps> = ({ collected, tota
   const percentage = total > 0 ? Math.round((collected / total) * 100) : 0;
   const [showCompletionDialog, setShowCompletionDialog] = useState<boolean>(false);
   
+  const searchParams = useSearchParams();
+  
   useEffect(() => {
-    if (percentage === 100) {
+    // 檢查是否從歷史訂單頁面跳轉過來
+    const fromHistory = searchParams.get('fromHistory') === 'true';
+    
+    // 只有在進度為 100% 且不是從歷史訂單頁面跳轉時才顯示完成訊息
+    if (percentage === 100 && !fromHistory) {
       setShowCompletionDialog(true);
     }
-  }, [percentage]);
+  }, [percentage, searchParams]);
   
   const handleCloseDialog = () => {
     setShowCompletionDialog(false);

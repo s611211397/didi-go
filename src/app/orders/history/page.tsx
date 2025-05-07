@@ -105,7 +105,7 @@ const OrderHistoryPage: React.FC = () => {
   
   // 處理點擊訂單卡片
   const handleOrderClick = (orderId: string) => {
-    router.push(`/orders/create/details?id=${orderId}`);
+    router.push(`/orders/create/details?id=${orderId}&fromHistory=true`);
   };
   
   // 處理刪除訂單
