@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { getUserOrders } from '@/services/order';
+import { OrderStatus } from '@/type/common';
 
 // 引入分離出來的元件
 import FeatureCard from '@/components/ui/FeatureCard';
@@ -15,13 +17,41 @@ export default function HomePage() {
   const { currentUser: user, loading } = useAuth();
   const router = useRouter();
   
-  // 模擬進行中的訂單資料（實際應用中應從服務或 Context 獲取）
-  // 只解構狀態值，不需要更新函數
-  const [activeOrder] = useState({
-    exists: true,
-    title: '大同便當訂購',
-    id: '123'
-  });
+  // 獲取進行中的訂單資料
+  const [activeOrder, setActiveOrder] = useState<{ exists: boolean, title?: string, id?: string }>({ exists: false });
+  
+  // 獲取用戶的訂購中訂單
+  useEffect(() => {
+    const fetchActiveOrder = async () => {
+      if (!user) return;
+      
+      try {
+        // 從 order 服務獲取用戶訂單
+        const orders = await getUserOrders(user.uid);
+        // 找出狀態為 ORDERING 的最新訂單
+        const activeOrders = orders.filter(order => order.status === OrderStatus.ORDERING);
+        
+        if (activeOrders.length > 0) {
+          // 存在訂購中的訂單，取第一筆（最新）
+          const latest = activeOrders[0];
+          setActiveOrder({
+            exists: true,
+            title: latest.title,
+            id: latest.id
+          });
+        } else {
+          // 沒有訂購中的訂單
+          setActiveOrder({ exists: false });
+        }
+      } catch (error) {
+        console.error('獲取訂購中訂單失敗:', error);
+        setActiveOrder({ exists: false });
+      }
+    };
+    
+    fetchActiveOrder();
+  }, [user]);
+
   
   // 檢查用戶是否已登入
   useEffect(() => {
@@ -55,9 +85,9 @@ export default function HomePage() {
           <h2 className="text-xl font-semibold text-[#484848]">今天想做什麼？</h2>
           {/* 進行中訂單提示 - 直接接續在標題後面 */}
           {activeOrder.exists && (
-            <Link href={`/orders/${activeOrder.id}`} className="ml-3 flex items-center text-[#10B981] text-sm md:text-base">
+            <Link href={`/orders/create/details?id=${activeOrder.id}&fromHistory=true`} className="ml-3 flex items-center text-[#10B981] text-sm md:text-base">
               <span className="text-[#10B981] mr-1">🟢</span> 
-              <span className="hover:underline">訂購中：{activeOrder.title}</span>
+              <span className="hover:underline">訂購中的訂單：{activeOrder.title}</span>
             </Link>
           )}
         </div>
@@ -73,36 +103,21 @@ export default function HomePage() {
           />
           
           <FeatureCard 
-            title="訂單歷史" 
-            description="查看過去的訂餐記錄與詳情" 
-            icon={<OrderHistoryIcon />} 
-            linkTo="/orders/history" 
-            color="border-[#3B82F6]"
-          />
-          
-          <FeatureCard 
             title="店家管理" 
             description="管理店家與菜單" 
             icon={<RestaurantIcon />} 
             linkTo="/restaurants" 
             color="border-[#FFB400]"
           />
+          
+          <FeatureCard 
+            title="訂單歷史" 
+            description="查看過去的訂餐記錄與詳情" 
+            icon={<OrderHistoryIcon />} 
+            linkTo="/orders/history" 
+            color="border-[#3B82F6]"
+          />
         </div>
-        
-        {/* 最近訂單區域 - 僅當沒有進行中訂單時顯示 */}
-        {!activeOrder.exists && (
-          <div className="mt-12">
-            <h2 className="text-xl font-semibold text-[#484848] mb-6">最近的訂單</h2>
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <p className="text-[#767676]">目前沒有進行中的訂單</p>
-              <Link href="/orders/create">
-                <button className="mt-4 bg-[#10B981] text-white px-4 py-2 rounded-md hover:bg-opacity-90 transition-all duration-300">
-                  立即建立訂單
-                </button>
-              </Link>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* 底部導航區域 (手機版) */}

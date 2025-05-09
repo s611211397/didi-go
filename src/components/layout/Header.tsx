@@ -88,20 +88,6 @@ const Header: React.FC = () => {
             </div>
             
             <Link 
-              href="/orders/history" 
-              className={`flex items-center transition-colors relative py-2 ${isActivePath('/orders/history') 
-                ? 'text-[#3B82F6] font-medium after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[#3B82F6]' 
-                : 'text-[#484848] hover:text-[#3B82F6]'}`}
-            >
-              <span className="w-5 h-5 mr-1 text-[#3B82F6]">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </span>
-              訂單歷史
-            </Link>
-            
-            <Link 
               href="/restaurants" 
               className={`flex items-center transition-colors relative py-2 ${isActivePath('/restaurants') 
                 ? 'text-[#FFB400] font-medium after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[#FFB400]' 
@@ -113,6 +99,20 @@ const Header: React.FC = () => {
                 </svg>
               </span>
               店家管理
+            </Link>
+            
+            <Link 
+              href="/orders/history" 
+              className={`flex items-center transition-colors relative py-2 ${isActivePath('/orders/history') 
+                ? 'text-[#3B82F6] font-medium after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[#3B82F6]' 
+                : 'text-[#484848] hover:text-[#3B82F6]'}`}
+            >
+              <span className="w-5 h-5 mr-1 text-[#3B82F6]">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </span>
+              訂單歷史
             </Link>
           </div>
         </div>
